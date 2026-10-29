@@ -1,0 +1,756 @@
+/* =========================================================
+   내 사과나무 1년 — 디자인 가이드 (공통 스타일)
+   ---------------------------------------------------------
+   사용법
+   1. 이 파일을 프로젝트에 넣고 앱 전체에서 한 번만 불러옵니다.
+      (Next.js라면 app/globals.css 맨 위에 이 내용을 붙여넣거나
+       app/layout.js에서 import '../styles/designGuide.css')
+   2. 색·글꼴·여백은 아래 변수(var(--...))만 사용합니다.
+      새 색이나 새 버튼 스타일을 직접 만들지 않습니다.
+   3. 계절은 화면 최상위 요소에 data-season 속성으로 지정합니다.
+      예) <main data-season="spring">  (spring | summer | autumn | winter)
+   이 파일은 공통 디자인 담당만 수정합니다.
+   ========================================================= */
+
+/* ---------- 글꼴 ---------- */
+/* Pretendard: 화면 전체 글꼴 (SIL OFL, 상업적 사용 가능)
+   버전이 바뀌었을 수 있으니 github.com/orioncactus/pretendard 에서 최신 주소 확인 */
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css");
+/* 고운바탕(일기 본문), 고운돋움(제목·포인트): Google Fonts */
+@import url("https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap");
+
+:root {
+  /* ---------- 기본 색 ---------- */
+  --color-paper: #FAF6EE;        /* 바탕 (종이) */
+  --color-surface: #FFFDF8;      /* 카드 바탕 */
+  --color-line: #E8E0D2;         /* 테두리·구분선 */
+  --color-placeholder: #EFE7D8;  /* 사진 자리 */
+  --color-ink: #2B2620;          /* 본문 글자 */
+  --color-ink-sub: #6B6259;      /* 보조 글자 (바탕 대비 약 5.5:1) */
+
+  --color-apple: #C8372D;        /* 대표색: 사과 빨강 (바탕 대비 약 4.8:1) */
+  --color-apple-dark: #9E2A22;   /* 대표색 눌림·호버 */
+  --color-apple-soft: #FBEDEB;   /* 대표색 연한 배경 (뜻풀이 상자 등) */
+  --color-leaf: #4E7A3E;         /* 보조색: 잎 초록 (바탕 대비 약 4.7:1) */
+  --color-leaf-dark: #3F6A32;    /* 연한 여름 배경 위 글자 (시안의 #4E7A3E는 대비 4.2:1로 부족해 조정, 5.3:1) */
+  --color-autumn-dark: #9A4A1C;  /* 연한 가을 배경 위 글자 (대비 5.0:1) */
+  --color-on-color: #FFFFFF;     /* 빨강·초록 버튼 위 글자 */
+  --color-polaroid: #FFFFFF;     /* 수확 앨범 폴라로이드 테두리 */
+
+  /* ---------- 계절 포인트 색 ----------
+     배경·장식에만 사용, 글자색으로 쓰지 않기 */
+  --season-spring: #F2C6C2;      /* 봄: 사과꽃 분홍 */
+  --season-summer: #A9C98B;      /* 여름: 연두 */
+  --season-autumn: #E08A4F;      /* 가을: 노을 주황 */
+  --season-winter: #B8AFA6;      /* 겨울: 가지 회갈색 */
+  --season-tint: var(--season-spring); /* 현재 계절 색 (data-season이 바꿈) */
+
+  /* 연한 계절 색: 타임라인에서 아직 오지 않은 계절 묶음, 단계 아이콘 배경 */
+  --season-spring-soft: #FBEDEB;
+  --season-summer-soft: #E7EEDC;
+  --season-autumn-soft: #F6E3D3;
+  --season-winter-soft: #EDE9E4; /* 시안에 없던 값 (새로 정함) */
+
+  /* ---------- 그림자 (사진에만, 아주 약하게) ---------- */
+  --shadow-photo: 0 2px 6px rgba(43, 38, 32, 0.12);
+
+  /* ---------- 글꼴 ---------- */
+  --font-ui: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  --font-diary: "Gowun Batang", serif;
+  --font-title: "Gowun Dodum", var(--font-ui);
+
+  /* ---------- 글자 크기 ---------- */
+  --text-xs: 12px;   /* 하단 메뉴, 근거 라벨 */
+  --text-sm: 13px;   /* 보조 설명 */
+  --text-md: 15px;   /* 기본 본문·버튼 */
+  --text-diary: 16px;/* 일기 본문 */
+  --text-lg: 18px;
+  --text-xl: 22px;   /* 화면 제목 */
+  --text-2xl: 26px;  /* 큰 제목 */
+
+  /* ---------- 여백 (4의 배수) ---------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;   /* 화면 좌우 기본 여백 */
+  --space-6: 24px;
+
+  /* ---------- 모서리 ---------- */
+  --radius-sm: 10px;   /* 작은 사진 */
+  --radius-item: 14px; /* 묶음 안의 항목, 뜻풀이 상자 */
+  --radius-md: 16px;   /* 카드, 입력창 */
+  --radius-card: 20px; /* 일기 카드, 타임라인 계절 묶음 */
+  --radius-lg: 24px;   /* 큰 카드 (홈의 나무 카드) */
+  --radius-full: 999px;/* 버튼 */
+
+  /* ---------- 움직임: 느리고 부드럽게 ---------- */
+  --motion-slow: 400ms;
+  --motion-ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+
+  /* ---------- 앱 화면 폭 ---------- */
+  --app-max-width: 430px; /* 데스크톱에서도 휴대폰 폭으로 가운데 표시 */
+}
+
+/* ---------- 계절 전환 ---------- */
+[data-season="spring"] { --season-tint: var(--season-spring); }
+[data-season="summer"] { --season-tint: var(--season-summer); }
+[data-season="autumn"] { --season-tint: var(--season-autumn); }
+[data-season="winter"] { --season-tint: var(--season-winter); }
+
+/* ---------- 기본 ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-ui);
+  font-size: var(--text-md);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 앱처럼 보이게: 가운데 휴대폰 폭 화면 */
+.app-shell {
+  max-width: var(--app-max-width);
+  min-height: 100dvh;
+  margin: 0 auto;
+  background: var(--color-paper);
+  display: flex;
+  flex-direction: column;
+}
+
+.app-content {
+  flex: 1;
+  padding: 0 var(--space-5) var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+a { color: var(--color-apple); }
+a:hover { color: var(--color-apple-dark); }
+
+/* 키보드 사용자를 위한 포커스 표시 */
+:focus-visible {
+  outline: 2px solid var(--color-apple);
+  outline-offset: 2px;
+}
+
+/* ---------- 제목 ---------- */
+.title {
+  margin: 0;
+  font-family: var(--font-title);
+  font-size: var(--text-xl);
+  font-weight: 400;
+}
+
+.caption {
+  font-size: var(--text-sm);
+  color: var(--color-ink-sub);
+}
+
+/* ---------- 버튼 ---------- */
+.btn {
+  min-height: 52px;              /* 손가락으로 누르기 충분한 크기 */
+  padding: 0 var(--space-6);
+  border-radius: var(--radius-full);
+  font-family: var(--font-ui);
+  font-size: var(--text-md);
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  text-decoration: none;
+  transition: background var(--motion-slow) var(--motion-ease);
+}
+
+.btn-primary {               /* 가장 중요한 행동 하나: 분양받기, 묻기, 배송 신청 */
+  border: none;
+  background: var(--color-apple);
+  color: var(--color-on-color);
+}
+.btn-primary:hover { background: var(--color-apple-dark); color: var(--color-on-color); }
+
+.btn-secondary {             /* 보조 행동: 편지 쓰기 등 */
+  border: 1.5px solid var(--color-leaf);
+  background: transparent;
+  color: var(--color-leaf);
+}
+
+.btn-icon {                  /* 아이콘만 있는 버튼: aria-label 꼭 넣기 */
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-line);
+  background: var(--color-surface);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* ---------- 카드 ---------- */
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+}
+
+.card-season {               /* 현재 계절 색이 깔리는 큰 카드 (홈의 나무 카드) */
+  background: var(--season-tint);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  transition: background var(--motion-slow) var(--motion-ease);
+}
+
+/* 사진이 아직 없을 때 자리 */
+.photo-placeholder {
+  background: var(--color-placeholder);
+  border: 1.5px dashed var(--season-winter);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-ink-sub);
+  font-size: var(--text-sm);
+}
+
+/* ---------- 나무 일기 ---------- */
+.diary-title {
+  margin: 0;
+  font-family: var(--font-diary);
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.diary-text {
+  margin: 0;
+  font-family: var(--font-diary);
+  font-size: var(--text-diary);
+  line-height: 1.9;
+}
+
+/* 사투리 단어: 누르면 뜻풀이 (button 요소에 적용) */
+.dialect-word {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  border-bottom: 2px dotted var(--color-apple);
+  cursor: pointer;
+}
+
+.dialect-meaning {           /* 뜻풀이 상자: 왼쪽에 단어·뜻, 오른쪽에 "단어장에 담기"(btn btn-primary btn-sm) */
+  background: var(--color-apple-soft);
+  border-radius: var(--radius-item);
+  padding: var(--space-3) 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-2);
+}
+.dialect-meaning-word { font-size: var(--text-md); font-weight: 700; }
+.dialect-meaning-text { font-size: 14px; }
+
+/* ---------- 대화 ---------- */
+.bubble {
+  padding: var(--space-3) 14px;
+  line-height: 1.6;
+}
+
+.bubble-me {                 /* 사용자가 보낸 말 */
+  max-width: 78%;
+  align-self: flex-end;
+  background: var(--color-apple);
+  color: var(--color-on-color);
+  border-radius: 18px 18px 4px 18px;
+}
+
+/* 나무의 답 + 근거를 한 묶음으로: <div class="bubble-group"> 안에 bubble-tree, bubble-source */
+.bubble-group {
+  align-self: flex-start;
+  max-width: 82%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bubble-tree {               /* 나무의 답: 일기와 같은 글꼴 */
+  align-self: flex-start;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: 18px 18px 18px 4px;
+  font-family: var(--font-diary);
+  font-size: var(--text-diary);
+  line-height: 1.7;
+}
+
+.bubble-source {             /* 답의 근거 표시 */
+  font-size: var(--text-xs);
+  color: var(--color-ink-sub);
+  padding-left: var(--space-1);
+}
+
+/* ---------- 입력창 ---------- */
+.input {
+  min-height: 48px;
+  width: 100%;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-full);
+  padding: 0 var(--space-4);
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-ui);
+  font-size: var(--text-md);
+}
+
+/* 여러 줄 입력창: 편지 쓰기 (label 꼭 붙이기) */
+.textarea {
+  width: 100%;
+  min-height: 140px;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-family: var(--font-diary);   /* 편지도 손글씨 느낌 */
+  font-size: var(--text-diary);
+  line-height: 1.8;
+  resize: vertical;
+}
+
+/* ---------- 상태 표시: 기다리는 중 / 오류 ---------- */
+/* 화면 읽기 프로그램이 알 수 있게 role="status" 또는 role="alert"와 함께 사용 */
+.status-message {            /* "홍이가 생각하는 중..." */
+  font-size: var(--text-sm);
+  color: var(--color-ink-sub);
+}
+
+.error-message {             /* "지금은 홍이가 대답하기 어려워요..." */
+  background: var(--color-apple-soft);
+  color: var(--color-apple-dark);
+  border-radius: var(--radius-item);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+}
+
+/* ---------- 아직 오지 않은 주 (기다림 표시) ---------- */
+.is-locked {
+  opacity: 0.75;
+  color: var(--color-ink-sub);
+}
+
+/* ---------- 하단 메뉴 ---------- */
+.tab-bar {
+  position: sticky;
+  bottom: 0;
+  height: 72px;
+  border-top: 1px solid var(--color-line);
+  background: var(--color-surface);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.tab-bar a {
+  color: var(--color-ink-sub);
+  font-size: var(--text-xs);
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+}
+
+.tab-bar a[aria-current="page"] {
+  color: var(--color-apple);
+  font-weight: 700;
+}
+
+/* =========================================================
+   아래는 디자인 시안 화면에서 가져온 부품입니다
+   ========================================================= */
+
+/* ---------- 공통: 보조 부품 ---------- */
+
+/* 화면에는 안 보이지만 화면 읽기 프로그램이 읽는 글자 (입력창 label 등) */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.btn-sm {                    /* 작은 버튼: "단어장에 담기" */
+  min-height: 36px;
+  padding: 0 var(--space-3);
+  font-size: var(--text-sm);
+  flex-shrink: 0;
+}
+
+.btn-block { width: 100%; }  /* 화면 폭 전체 버튼: "주소 입력" */
+
+.btn-row {                   /* 버튼 두 개 나란히 (홈: 편지 쓰기 / 나무에게 묻기) */
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.btn-back {                  /* 뒤로 가기: 테두리 없는 아이콘 버튼, aria-label="뒤로" */
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: none;
+  color: var(--color-ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.btn-send {                  /* 대화 보내기: 빨간 원형 버튼, aria-label="보내기" */
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: var(--radius-full);
+  background: var(--color-apple);
+  color: var(--color-on-color);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.btn-send:disabled { opacity: 0.5; cursor: default; }
+
+/* ---------- 화면 위쪽 ---------- */
+
+.page-header {               /* 홈·타임라인: 작은 설명 + 큰 제목 (+ 오른쪽 아이콘 버튼) */
+  padding: var(--space-6) var(--space-5) var(--space-3);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.top-bar {                   /* 상세 화면: 뒤로 가기 + 제목 */
+  padding: var(--space-4) var(--space-3) var(--space-2);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-md);
+  font-weight: 500;
+}
+
+/* ---------- 카드 안 글자 ---------- */
+
+.card-diary {                /* 일기 미리보기·일기 본문 카드 */
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-card);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  color: var(--color-ink);
+  text-decoration: none;     /* 카드 전체가 링크일 때 밑줄 없애기 */
+}
+
+.card-label-row {            /* 카드 맨 위 "이번 주 나무 일기 ··· 18주차" */
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--text-sm);
+  color: var(--color-ink-sub);
+}
+
+.link-more {                 /* "일기 읽기" 같은 더 보기 글자 */
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-apple);
+}
+
+.tree-name {                 /* 홈 나무 카드의 나무 이름 */
+  font-family: var(--font-title);
+  font-size: var(--text-2xl);
+}
+
+.big-number {                /* "23주" 같은 큰 숫자 */
+  font-size: 24px;
+  font-weight: 700;
+}
+
+/* 일기 사진: 계절 색 테두리 액자 (안에 img 또는 photo-placeholder) */
+.photo-frame {
+  border-radius: 18px;
+  background: var(--season-tint);
+  padding: 10px;
+}
+.photo-frame > img,
+.photo-frame > .photo-placeholder {
+  width: 100%;
+  height: 180px;
+  border-radius: var(--radius-item);
+}
+.photo-frame > img { display: block; object-fit: cover; }
+
+/* ---------- 일기 근거 접기/펼치기 ---------- */
+
+.evidence-toggle {           /* <button aria-expanded="true|false"> */
+  min-height: 48px;
+  width: 100%;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-family: var(--font-ui);
+  font-size: var(--text-md);
+  font-weight: 500;
+  padding: 0 var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.evidence-grid {             /* 펼친 근거: 2열 */
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  font-size: 14px;
+}
+.evidence-label {            /* "생육 단계", "기온" 같은 작은 이름표 */
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--color-ink-sub);
+}
+
+/* ---------- 타임라인 ---------- */
+
+/* 진행 막대: style={{ "--progress": "35%" }} 로 채운 정도 지정 */
+.progress {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--color-line);
+  overflow: hidden;
+}
+.progress-fill {
+  width: var(--progress, 0%);
+  height: 100%;
+  background: var(--color-apple);
+  border-radius: 4px;
+  transition: width var(--motion-slow) var(--motion-ease);
+}
+.progress-caption {          /* 막대 아래 "18주 함께함 ··· 수확까지 23주" */
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--text-sm);
+  color: var(--color-ink-sub);
+}
+
+/* 계절 묶음 상자
+   <section class="season-group" data-group="spring">          → 지금·지난 계절: 진한 계절 색
+   <section class="season-group is-waiting" data-group="summer"> → 아직 오지 않은 계절: 연한 계절 색 */
+.season-group {
+  border-radius: var(--radius-card);
+  padding: 14px var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.season-group[data-group="spring"] { background: var(--season-spring); }
+.season-group[data-group="summer"] { background: var(--season-summer); }
+.season-group[data-group="autumn"] { background: var(--season-autumn); }
+.season-group[data-group="winter"] { background: var(--season-winter); }
+.season-group.is-waiting[data-group="spring"] { background: var(--season-spring-soft); }
+.season-group.is-waiting[data-group="summer"] { background: var(--season-summer-soft); }
+.season-group.is-waiting[data-group="autumn"] { background: var(--season-autumn-soft); }
+.season-group.is-waiting[data-group="winter"] { background: var(--season-winter-soft); }
+
+.season-group-title {        /* "봄", "여름 · 기다리는 중" */
+  margin: 0;
+  font-family: var(--font-title);
+  font-size: 17px;
+  font-weight: 400;
+}
+.season-group.is-waiting[data-group="summer"] .season-group-title { color: var(--color-leaf-dark); }
+.season-group.is-waiting[data-group="autumn"] .season-group-title { color: var(--color-autumn-dark); }
+.season-group.is-waiting[data-group="winter"] .season-group-title { color: var(--color-ink-sub); }
+
+.timeline-item {             /* 한 주 항목 (a 태그 또는 잠긴 주는 div) */
+  background: var(--color-surface);
+  border: 2px solid transparent;
+  border-radius: var(--radius-item);
+  padding: var(--space-3);
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  color: var(--color-ink);
+  text-decoration: none;
+}
+.timeline-item.is-current { border-color: var(--color-apple); }  /* 이번 주 */
+
+.timeline-thumb {            /* 56px 작은 사진 (img 또는 자물쇠 아이콘이 들어감) */
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  background: var(--color-placeholder);
+  object-fit: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-ink-sub);
+}
+
+.timeline-week {             /* "16주차 · 꽃봉오리" */
+  font-size: var(--text-sm);
+  color: var(--color-ink-sub);
+}
+.timeline-item.is-current .timeline-week { color: var(--color-apple); font-weight: 700; }
+
+.timeline-headline {         /* 그 주 일기 한 줄 */
+  font-family: var(--font-diary);
+  font-size: var(--text-md);
+}
+
+/* ---------- 생육 단계 아이콘 원 ----------
+   <span class="stage-badge" data-stage="개화"><StageIcon stage="개화" /></span>
+   작은 크기(대화 화면 아바타)는 stage-badge-sm */
+.stage-badge {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  background: var(--color-placeholder);
+  color: var(--color-ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.stage-badge-sm { width: 40px; height: 40px; }
+.stage-badge[data-stage="휴면"] { background: var(--season-winter-soft); }
+.stage-badge[data-stage="개화"] { background: var(--season-spring); }
+.stage-badge[data-stage="착과"] { background: var(--season-summer-soft); color: var(--color-leaf); }
+.stage-badge[data-stage="비대"] { background: var(--season-summer); }
+.stage-badge[data-stage="착색"],
+.stage-badge[data-stage="수확기"] { background: var(--season-autumn); }
+
+/* ---------- 대화 화면 ---------- */
+
+.chat-header {               /* 뒤로 + 아바타 + 이름·설명 */
+  padding: var(--space-4) var(--space-3) var(--space-3);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  border-bottom: 1px solid var(--color-line);
+}
+.chat-header-name { font-family: var(--font-title); font-size: var(--text-lg); }
+.chat-header-desc { font-size: var(--text-xs); color: var(--color-ink-sub); }
+
+.chat-list {                 /* 말풍선 목록 */
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.chat-form {                 /* 아래 입력줄: input + btn-send */
+  padding: var(--space-3) var(--space-4) var(--space-5);
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  border-top: 1px solid var(--color-line);
+  background: var(--color-surface);
+}
+.chat-form .input { flex: 1; width: auto; }
+
+/* ---------- 수확 앨범 ---------- */
+
+.album-header {              /* 가을 색 머리 부분 */
+  background: var(--season-autumn);
+  padding: 28px var(--space-5) 22px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.album-title {
+  margin: 0;
+  font-family: var(--font-diary);
+  font-weight: 700;
+  font-size: var(--text-2xl);
+  line-height: 1.35;
+}
+.album-stats { display: flex; gap: var(--space-4); font-size: 14px; }
+
+.polaroid-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.polaroid {                  /* 흰 테두리 + 약한 그림자 + 살짝 기울임 */
+  margin: 0;                 /* figure 태그로 써도 여백 없게 */
+  background: var(--color-polaroid);
+  padding: var(--space-2) var(--space-2) var(--space-3);
+  box-shadow: var(--shadow-photo);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+/* 기울기는 순서대로 자동: -2°, 1.5°, 1°, -1.5° 반복 */
+.polaroid:nth-child(4n + 1) { transform: rotate(-2deg); }
+.polaroid:nth-child(4n + 2) { transform: rotate(1.5deg); }
+.polaroid:nth-child(4n + 3) { transform: rotate(1deg); }
+.polaroid:nth-child(4n + 4) { transform: rotate(-1.5deg); }
+
+.polaroid-photo {            /* 사진 (img) 또는 편지 글이 들어가는 칸 */
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-placeholder);
+}
+.polaroid-letter {           /* 사진 대신 편지가 들어간 폴라로이드 */
+  background: var(--color-apple-soft);
+  padding: 10px;
+  font-family: var(--font-diary);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  text-align: center;
+}
+.polaroid-caption {
+  font-family: var(--font-diary);
+  font-size: 14px;
+}
+
+.info-card {                 /* 아이콘 + 안내 한 줄 (QR 안내) */
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  padding: 14px var(--space-4);
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* 움직임을 줄이도록 설정한 사용자 배려 */
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
