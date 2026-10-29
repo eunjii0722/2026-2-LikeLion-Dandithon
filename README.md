@@ -36,7 +36,46 @@ http://localhost:3000
 
 > Next.js 프로젝트 초기 설정은 완료되어 있으므로 `create-next-app`을 다시 실행할 필요가 없습니다.
 
-### 4. 작업 브랜치 생성
+### 4. Gemini API 환경변수 설정
+
+Gemini AI 기능을 사용하려면 개인 개발 환경에 API 키를 설정해야 합니다.
+
+**① `.env.local` 파일 생성**
+
+프로젝트 루트에서 PowerShell을 실행합니다.
+
+```powershell
+Copy-Item .env.example .env.local
+```
+
+**② Gemini API 키 입력**
+
+생성된 `.env.local` 파일을 열고 발급받은 API 키를 입력합니다.
+
+```dotenv
+GEMINI_API_KEY=발급받은_API_키
+```
+
+API 키는 서버에서 `process.env.GEMINI_API_KEY`로 불러옵니다.
+
+**③ 개발 서버 실행**
+
+```powershell
+npm run dev
+```
+
+이미 실행 중이라면 서버를 종료한 후 다시 실행해야 변경된 환경변수가 반영됩니다.
+
+**주의사항**
+
+- `.env.example`: 환경변수 이름을 공유하는 예시 파일로, GitHub에 업로드합니다.
+- `.env.local`: 실제 API 키를 저장하는 개인 설정 파일로, GitHub에 업로드하지 않습니다.
+- `.env.local`은 `.gitignore`에 의해 Git 추적 대상에서 제외됩니다.
+- API 키를 소스 코드에 직접 작성하거나 `NEXT_PUBLIC_` 접두사가 붙은 변수에 저장하지 않습니다.
+- API 키는 서버 측 API Route에서만 사용합니다.
+- AI 기능을 사용하지 않는 일반 프론트엔드 개발자는 초기 화면 개발 단계에서 API 키 없이 작업할 수 있습니다.
+
+### 5. 작업 브랜치 생성
 
 작업을 시작하기 전에 최신 `main` 브랜치를 받아옵니다.
 
@@ -56,7 +95,7 @@ git switch -c FE/feature/home
 - 프론트엔드: `FE/feature/기능명`
 - 백엔드 및 AI API: `BE/feature/기능명`
 
-### 5. 작업 완료 후 GitHub에 업로드
+### 6. 작업 완료 후 GitHub에 업로드
 
 ```powershell
 git status
@@ -69,7 +108,7 @@ git push -u origin FE/feature/home
 
 GitHub에서 해당 브랜치의 Pull Request를 생성하고, 변경사항 확인 후 `main`에 병합합니다.
 
-### 6. 협업 시 주의사항
+### 7. 협업 시 주의사항
 
 - `main` 브랜치에서 직접 개발하지 않고 기능별 브랜치를 생성합니다.
 - 다른 팀원의 작업을 덮어쓰지 않도록 수정 범위를 확인합니다.
