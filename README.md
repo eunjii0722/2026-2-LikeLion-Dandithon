@@ -77,7 +77,7 @@ npm run dev
 
 ### 5. 작업 브랜치 생성
 
-작업을 시작하기 전에 최신 `main` 브랜치를 받아옵니다.
+작업을 시작하기 전에 꼭!!!! 최신 `main` 브랜치를 받아옵니다.
 
 ```powershell
 git switch main
