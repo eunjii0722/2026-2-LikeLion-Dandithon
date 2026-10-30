@@ -1,0 +1,26 @@
+/* 타임라인 전용 배치. 색·여백은 디자인 가이드 변수만 사용 */
+
+.itemText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* isSpecial 일기의 "특별 소식" 작은 표시 */
+.special {
+  align-self: flex-start;
+  margin-top: var(--space-1);
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--color-apple-soft);
+  color: var(--color-apple-dark);
+  font-size: var(--text-xs);
+  font-weight: 700;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  align-items: flex-start;
+}

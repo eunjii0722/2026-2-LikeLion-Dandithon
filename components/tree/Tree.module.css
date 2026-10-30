@@ -1,0 +1,55 @@
+/* 나무 목록·프로필 전용 배치. 색·여백은 디자인 가이드 변수만 사용 */
+
+.treeCard {
+  display: flex;
+  gap: var(--space-4);
+  align-items: center;
+  color: var(--color-ink);
+  text-decoration: none;
+}
+
+.thumb {
+  width: 88px;
+  height: 88px;
+  flex-shrink: 0;
+  border-radius: var(--radius-item);
+  object-fit: cover;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* 프로필 */
+.facts {
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-2) var(--space-4);
+}
+
+.facts dt {
+  color: var(--color-ink-sub);
+}
+
+.facts dd {
+  margin: 0;
+}
+
+.footer {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
