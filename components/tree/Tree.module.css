@@ -47,6 +47,14 @@
   margin: 0;
 }
 
+/* 고른 나무가 없을 때 안내 카드 */
+.empty {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  align-items: flex-start;
+}
+
 .footer {
   margin-top: auto;
   display: flex;

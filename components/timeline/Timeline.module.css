@@ -17,10 +17,3 @@
   font-size: var(--text-xs);
   font-weight: 700;
 }
-
-.empty {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  align-items: flex-start;
-}

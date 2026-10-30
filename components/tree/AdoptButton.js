@@ -6,6 +6,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { setSelectedTreeId } from "./tempStorage";
+import { withWa } from "./josa";
 
 const MOVE_DELAY_MS = 1500;
 
@@ -22,7 +23,7 @@ export default function AdoptButton({ treeId, treeName }) {
   return (
     <>
       <p className="status-message" role="status">
-        {isDone && `분양 완료! 이제 ${treeName}와 1년을 함께해요. 홈으로 이동할게요.`}
+        {isDone && `분양 완료! 이제 ${withWa(treeName)} 1년을 함께해요. 홈으로 이동할게요.`}
       </p>
       <button type="button" className="btn btn-primary btn-block" onClick={handleAdopt} disabled={isDone}>
         이 나무 분양받기

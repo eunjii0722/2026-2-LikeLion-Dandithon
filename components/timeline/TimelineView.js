@@ -9,13 +9,12 @@
      (주차 → 계절은 주차를 달로 바꿔서 계산)
    ========================================================= */
 
-import { useSyncExternalStore } from "react";
-import Link from "next/link";
 import SeasonGroup from "./SeasonGroup";
 import TabBar from "./TabBar";
-import styles from "./Timeline.module.css";
+import NoTreeSelected from "@/components/tree/NoTreeSelected";
+import useSelectedTreeId from "@/components/tree/useSelectedTreeId";
 import { getTree } from "@/components/tree/tempData";
-import { getAllDiaries, getSelectedTreeId } from "@/components/tree/tempStorage";
+import { getAllDiaries } from "@/components/tree/tempStorage";
 
 const SEASON_ORDER = ["spring", "summer", "autumn", "winter"];
 
@@ -73,16 +72,8 @@ function buildGroups(tree, diaries) {
   })).filter((group) => group.items.length > 0);
 }
 
-function subscribe(onChange) {
-  window.addEventListener("storage", onChange);
-  return () => window.removeEventListener("storage", onChange);
-}
-
 export default function TimelineView() {
-  // 공통 안내 5-1의 useEffect 방식은 lint(react-hooks/set-state-in-effect)에 걸려서
-  // 같은 동작을 useSyncExternalStore로 구현: 서버·첫 화면에서는 undefined(불러오는 중),
-  // 화면이 뜬 뒤 저장된 id 또는 null(고른 나무 없음)
-  const treeId = useSyncExternalStore(subscribe, getSelectedTreeId, () => undefined);
+  const treeId = useSelectedTreeId();
 
   if (treeId === undefined) {
     return (
@@ -95,23 +86,7 @@ export default function TimelineView() {
   }
 
   const tree = getTree(treeId);
-  if (!tree) {
-    return (
-      <div className="app-shell">
-        <header className="page-header">
-          <h1 className="title">성장 타임라인</h1>
-        </header>
-        <main className="app-content">
-          <div className={`card ${styles.empty}`}>
-            <p style={{ margin: 0 }}>아직 함께할 나무를 고르지 않았어요.</p>
-            <Link href="/trees" className="btn btn-primary">
-              나무 고르러 가기
-            </Link>
-          </div>
-        </main>
-      </div>
-    );
-  }
+  if (!tree) return <NoTreeSelected title="성장 타임라인" />;
 
   const { name, startWeek, currentWeek, harvestWeek } = tree;
   const progress = Math.min(

@@ -33,6 +33,16 @@ export function getSelectedTreeId() {
   return read("selectedTreeId", null);
 }
 
+/* 편지: [{ id, treeId, week, text, createdAt, usedInDiaryId }] */
+export function getLetters() {
+  return read("letters", []);
+}
+
+/* 단어장: [{ word, meaning, week }] */
+export function getSavedWords() {
+  return read("savedWords", []);
+}
+
 /* JSON 일기 + 농부 화면에서 새로 만든 일기. 같은 id면 새로 만든 쪽 사용 */
 export function getAllDiaries(treeId) {
   const generated = read("generatedDiaries", []).filter((diary) => diary.treeId === treeId);

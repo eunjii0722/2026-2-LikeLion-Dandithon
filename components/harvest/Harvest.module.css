@@ -1,0 +1,20 @@
+/* 수확 앨범 전용 배치. 색·여백은 디자인 가이드 변수만 사용 */
+
+/* 가을 머리 부분과 폴라로이드 사이 여백 */
+.content {
+  padding-top: var(--space-5);
+}
+
+.addressArea {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--color-ink-sub);
+}
