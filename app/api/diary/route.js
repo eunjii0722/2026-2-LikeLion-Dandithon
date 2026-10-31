@@ -1,8 +1,7 @@
+import { generateTreeDiary, GeminiError } from "@/lib/gemini";
+
 export async function POST(request) {
   try {
-    // Mock API: 프론트엔드 로딩 UI 확인을 위해 2초 기다립니다.
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
     let body;
     try {
       body = await request.json();
@@ -97,6 +96,23 @@ export async function POST(request) {
       );
     }
 
+    // 기존 Mock의 최소 Vision 입력은 유지하며, 추가 관찰 정보는 전달됐을 때 검증합니다.
+    const isNullableBoolean = (value) => value === null || typeof value === "boolean";
+    const isStringArray = (value) => Array.isArray(value)
+      && value.every((item) => typeof item === "string");
+    if (
+      (vision.flowers_visible !== undefined && !isNullableBoolean(vision.flowers_visible)) ||
+      (vision.fruit_visible !== undefined && !isNullableBoolean(vision.fruit_visible)) ||
+      (vision.fruit_color !== undefined && !["초록", "일부 붉음", "대부분 붉음", null].includes(vision.fruit_color)) ||
+      (vision.observations !== undefined && !isStringArray(vision.observations)) ||
+      (vision.uncertain_points !== undefined && !isStringArray(vision.uncertain_points))
+    ) {
+      return Response.json(
+        { error: "vision의 꽃·열매 여부, 색상, 관찰 내용 또는 불확실한 점의 형식이 올바르지 않습니다." },
+        { status: 400 },
+      );
+    }
+
     // 검증된 관찰 날짜의 월로만 계절을 정합니다.
     const month = Number(observedAt.slice(5, 7));
     let season = "winter";
@@ -108,16 +124,33 @@ export async function POST(request) {
       season = "autumn";
     }
 
-    // Mock 응답: 일기 문구는 고정이며, 사진 종류와 근거는 요청값을 그대로 사용합니다.
+    // 검증한 계약 필드만 전달합니다. 데이터 파일·브라우저 저장소는 조회하지 않습니다.
+    const generated = await generateTreeDiary({
+      treeId, week, photoType,
+      vision: {
+        growth_stage: vision.growth_stage,
+        confidence: vision.confidence,
+        flowers_visible: vision.flowers_visible,
+        fruit_visible: vision.fruit_visible,
+        fruit_color: vision.fruit_color,
+        observations: vision.observations,
+        uncertain_points: vision.uncertain_points,
+      },
+      weather: { tempMax: weather.tempMax, tempMin: weather.tempMin, rainMm: weather.rainMm },
+      farmerNote, farmerConfirmed, observedAt, letters,
+    });
+
+    // 식별자, 계절, 사진, 근거는 Gemini 결과와 분리하여 서버에서 구성합니다.
     return Response.json({
       id: `${treeId}-w${week}`,
       treeId,
       week,
       season,
-      title: "이번 주 홍이의 이야기",
-      text: "이번 주도 내 소식을 보러 왔나? 참 고맙데이. 오늘은 쪼매 이야기를 남겨 볼라꼬. 다음에도 또 만나자.",
+      title: generated.title,
+      text: generated.text,
+      // 별도 특보 입력 계약이 준비되면 연결합니다.
       isSpecial: false,
-      dialectWords: [{ word: "쪼매", meaning: "조금" }],
+      dialectWords: generated.dialectWords,
       photo: { url: null, type: photoType },
       evidence: {
         growthStage: vision.growth_stage,
@@ -128,7 +161,10 @@ export async function POST(request) {
         farmerNote,
       },
     });
-  } catch {
+  } catch (error) {
+    if (error instanceof GeminiError) {
+      return Response.json({ error: error.message }, { status: error.status });
+    }
     return Response.json(
       { error: "일기 생성 요청을 처리하는 중 서버 오류가 발생했습니다." },
       { status: 500 },
