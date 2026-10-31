@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/Link";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import IconButton from "./IconButton";
 import { IconBack } from "./Icons";
