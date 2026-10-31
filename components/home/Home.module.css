@@ -1,0 +1,83 @@
+/* 홈 전용 배치만 정의하며 색·서체·버튼은 공통 디자인 가이드를 사용함. */
+.shell {
+  overflow-wrap: anywhere;
+}
+
+.noMargin {
+  margin: 0;
+}
+
+.emptyCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-6);
+}
+
+.emptyCard h2 {
+  word-break: keep-all;
+  text-wrap: balance;
+}
+
+.treeCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.photo {
+  display: flex;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+}
+
+.photoCaption {
+  margin-top: var(--space-1);
+}
+
+.treeDetails {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.treeInfo {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.stageLine {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.stageLine svg {
+  flex-shrink: 0;
+}
+
+.harvest {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.diaryPreview {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+
+@media (max-width: 360px) {
+  .actions {
+    grid-template-columns: 1fr;
+  }
+}
