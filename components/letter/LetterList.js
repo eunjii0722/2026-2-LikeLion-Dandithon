@@ -15,9 +15,7 @@ export default function LetterList({letters}) {
             {sorted.map((letter) => (
                 <Card key={letter.id}>
                     <p className="caption">
-                        {letter.week}
-                        {new Date(letter.createdAt).toLocaleDateString("ko-KR")}
-                        {letter.usedInDiaryID ? " 답장 받음" : ""}
+                        {`${letter.week}주차 · ${new Date(letter.createdAt).toLocaleDateString("ko-KR")}${letter.usedInDiaryID ? " · 답장 받음" : ""}`}
                     </p>
                     <p className="diary-text">{letter.text}</p>
                 </Card>
