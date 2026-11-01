@@ -16,7 +16,7 @@ test("common JSON/data/storage compile in both Next.js server and client graphs 
     for (const file of ["data.js", "storage.js"]) await cp(join(root, "lib", file), join(fixture, "lib", file));
     await cp(join(root, "package.json"), join(fixture, "package.json"));
     await cp(join(root, "package-lock.json"), join(fixture, "package-lock.json"));
-    await symlink(join(root, "node_modules"), join(fixture, "node_modules"), "dir");
+    await symlink(join(root, "node_modules"), join(fixture, "node_modules"), process.platform === "win32" ? "junction" : "dir");
     await writeFile(join(fixture, "next.config.mjs"), `export default { turbopack: { root: ${JSON.stringify(dirname(fixture))} } };\n`);
     await writeFile(join(fixture, "app/layout.js"), "export default function Layout({ children }) { return <html lang='ko'><body>{children}</body></html>; }\n");
     await writeFile(join(fixture, "app/page.js"), `
