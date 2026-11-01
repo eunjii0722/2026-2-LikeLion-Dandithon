@@ -1,0 +1,16 @@
+[
+  {
+    "id": "tree-1",
+    "name": "홍이",
+    "variety": "[품종]",
+    "farm": {
+      "name": "[○○농원]",
+      "region": "청송",
+      "dialectRegion": "경북 북부"
+    },
+    "photo": null,
+    "startWeek": 14,
+    "harvestWeek": 41,
+    "currentWeek": 18
+  }
+]
