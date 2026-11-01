@@ -1,6 +1,5 @@
-// 1단계 나무·일기 목업, 선택 상태는 homeStorage.js에서 읽음.
-// TODO: 공통 모듈 준비 후 lib/data.js의 데이터 함수로 교체
-// 데이터 모양은 공통 안내의 나무·주간 일기 명세를 따름.
+// 화면에서 사용하지 않는 이전 구현으로 tests/common-*.test.mjs의 호환성 비교용
+// TODO: 공통 테스트 후 비교 자료를 분리한 뒤 해당 파일 삭제
 const MOCK_TREE = {
   id: "tree-1",
   name: "홍이",

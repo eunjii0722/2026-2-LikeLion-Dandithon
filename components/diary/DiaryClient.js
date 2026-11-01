@@ -2,12 +2,15 @@
 
 import { useId, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { IconBack } from "@/components/common/Icons";
 import DiaryCard from "./DiaryCard";
-import { getDiaryModel, getDiaryHref, SEASON_NAMES } from "./diaryData";
-import { getDiaryStorageSnapshot, subscribeToDiary } from "./diaryStorage";
+import Button from "@/components/common/Button";
+import Card from "@/components/common/Card";
+import IconButton from "@/components/common/IconButton";
+import PhotoPlaceholder from "@/components/common/PhotoPlaceholder";
+import { getDiaryModel, getDiaryHref, SEASON_NAMES } from "@/lib/data";
+import { getDiaryStorageSnapshot, subscribeToDiary } from "@/lib/storage";
 import styles from "./Diary.module.css";
 
 const getServerSnapshot = () => null;
@@ -19,6 +22,7 @@ export default function DiaryClient({ week, diaryId }) {
   const season = model.diary?.season;
   const router = useRouter();
 
+  // 공통 TopBar에는 기록이 없을 때의 대체 경로가 없어 기존 이동 동작을 유지한다.
   function goBack() {
     if (window.history.length > 1) router.back();
     else router.push("/timeline");
@@ -27,7 +31,7 @@ export default function DiaryClient({ week, diaryId }) {
   return (
     <div className={`app-shell ${styles.shell}`} data-season={SEASON_NAMES[season] ? season : "spring"}>
       <header className="top-bar">
-        <button type="button" className="btn-back" aria-label="뒤로" onClick={goBack}><IconBack /></button>
+        <IconButton variant="plain" label="뒤로" onClick={goBack}><IconBack /></IconButton>
         <span>{week}주차 · {SEASON_NAMES[season] ?? "나무 일기"}</span>
       </header>
       <main className="app-content">
@@ -47,9 +51,9 @@ function DiaryState({ status, currentWeek }) {
         : status === "future" ? "아직 열리지 않은 일기예요" : "이 주의 일기가 아직 없어요"}</h1>
       <p className="diary-text">{noTree ? "나무를 고르면 성장 일기를 만날 수 있어요."
         : "소식이 도착한 주의 일기부터 읽어 보세요."}</p>
-      <Link href={noTree ? "/trees" : `/diary/${currentWeek}`} className="btn btn-primary">
+      <Button href={noTree ? "/trees" : `/diary/${currentWeek}`}>
         {noTree ? "나무 고르러 가기" : "이번 주 일기 보기"}
-      </Link>
+      </Button>
     </section>
   );
 }
@@ -69,10 +73,10 @@ function DiaryDetail({ model, savedWords }) {
         </button>
         {evidenceOpen && <Evidence id={evidenceId} diary={diary} />}
       </section>
-      {related.map((item) => <Link key={item.id} href={getDiaryHref(item)} className={`card ${styles.related}`}>
+      {related.map((item) => <Card key={item.id} href={getDiaryHref(item)} className={styles.related}>
         <span className="caption">{item.isSpecial ? "이번 주 특별 소식" : "이번 주 성장 일기"}</span>
         <span className="link-more">{item.title}</span>
-      </Link>)}
+      </Card>)}
       <nav className={`btn-row ${styles.navigation}`} aria-label="주간 일기 이동">
         <WeekLink week={previousWeek} direction="이전" />
         <WeekLink week={nextWeek} direction="다음" />
@@ -89,7 +93,7 @@ function DiaryPhoto({ photo }) {
       <div className="photo-frame">
         {photo?.url && !failed ? <Image src={photo.url} alt={photo.type === "orchard" ? "과수원 전체 모습" : "내 나무 모습"}
           width={740} height={360} unoptimized onError={() => setFailed(true)} />
-          : <div className="photo-placeholder">이번 주 사진 준비 중</div>}
+          : <PhotoPlaceholder aria-label="이번 주 사진 준비 중">이번 주 사진 준비 중</PhotoPlaceholder>}
       </div>
       {photo?.type === "orchard" && <figcaption className={`caption ${styles.photoCaption}`}>과수원 전체 모습</figcaption>}
     </figure>
@@ -118,7 +122,7 @@ function Evidence({ id, diary }) {
 }
 
 function WeekLink({ week, direction }) {
-  if (week === null) return <button type="button" className="btn btn-secondary is-locked" disabled>{direction} 주</button>;
-  return <Link href={`/diary/${week}`} className="btn btn-secondary"
-    aria-label={`${direction} 주, ${week}주차 일기`}>{direction} 주 · {week}주차</Link>;
+  if (week === null) return <Button variant="secondary" className="is-locked" disabled>{direction} 주</Button>;
+  return <Button href={`/diary/${week}`} variant="secondary"
+    aria-label={`${direction} 주, ${week}주차 일기`}>{direction} 주 · {week}주차</Button>;
 }
