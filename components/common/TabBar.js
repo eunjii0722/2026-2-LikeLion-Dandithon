@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { IconHome, IconTimeline, IconDiary, IconAlbum } from ".Icons";
+import { IconHome, IconTimeline, IconDiary, IconAlbum } from "./Icons";
 
 export default function TabBar({
     currentWeek = 18,
@@ -14,29 +14,35 @@ export default function TabBar({
             href: "/",
             label: "홈",
             Icon: IconHome,
-            math: (p) => p === "/",
+            match: (p) => p === "/",
         },
         {
             href: "/timeline",
             label: "타임라인",
             Icon: IconTimeline,
-            math: (p) => p.startsWith("/timeline"),
+            match: (p) => p === "/timeline" || p?.startsWith("/timeline/"),
+        },
+        {
+            href: `/diary/${currentWeek}`,
+            label: "일기",
+            Icon: IconDiary,
+            match: (p) => p === "/diary" || p?.startsWith("/diary/"),
         },
         {
             href:"/harvest",
             label:"앨범",
             Icon:IconAlbum,
-            math: (p) => p.startsWith("/harvest"),
+            match: (p) => p === "/harvest" || p?.startsWith("/harvest/"),
         },
     ];
 
     return (
         <nav className="tab-bar" aria-label="하단 메뉴">
-            {tabs.map(({href, label, Icon, math}) => (
+            {tabs.map(({href, label, Icon, match}) => (
                 <Link
                 key={href}
                 href={href}
-                aria-current={matchMedia(pathname) ? "page" : undefined}>
+                aria-current={match(pathname) ? "page" : undefined}>
                     <Icon/>
                     <span>{label}</span>
                 </Link>
