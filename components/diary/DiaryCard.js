@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
+import Link from "next/link";
 import { splitDialectText } from "./diaryUtils";
 import { saveWord } from "./diaryStorage";
 import styles from "./Diary.module.css";
@@ -48,6 +49,7 @@ export default function DiaryCard({ diary, savedWords = [] }) {
       )}
       {feedback && <p className={`${feedback.error ? "error-message" : "status-message"} ${styles.noMargin}`}
         role={feedback.error ? "alert" : "status"}>{feedback.text}</p>}
+      {selectedWord && <Link href="/words" className="link-more">내 단어장 보기</Link>}
     </article>
   );
 }
