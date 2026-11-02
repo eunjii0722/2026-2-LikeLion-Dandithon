@@ -4,19 +4,20 @@
    성장 타임라인 화면 본문
    ---------------------------------------------------------
    고른 나무 id가 브라우저 저장소에 있어서 화면이 뜬 뒤 읽음 (공통 안내 5-1).
-   - 지난 주·이번 주: getAllDiaries(treeId) (JSON 일기 + 농부 화면에서 새로 만든 일기)
+   - 지난 주·이번 주: mergeDiaries(treeId, generatedDiaries) (JSON 일기 + 농부 화면에서 새로 만든 일기)
    - 아직 오지 않은 주: 앞으로 올 계절마다 첫 주 한 칸 + 수확 주
      (공통 데이터에 예고 필드가 없어서 주차를 달로 바꿔 계절을 계산)
    ========================================================= */
 
+import { useSyncExternalStore } from "react";
 import SeasonGroup from "./SeasonGroup";
 import TabBar from "@/components/common/TabBar";
 import NoTreeSelected from "@/components/tree/NoTreeSelected";
-import useSelectedTreeId from "@/components/tree/useSelectedTreeId";
-import { getDiaryHref, getTree, STAGE_DESCRIPTIONS } from "@/lib/data";
-import { getAllDiaries } from "@/lib/storage";
+import { getDiaryHref, getTree, mergeDiaries, STAGE_DESCRIPTIONS } from "@/lib/data";
+import { getDiaryStorageSnapshot, subscribeToDiary } from "@/lib/storage";
 
 const SEASON_ORDER = ["spring", "summer", "autumn", "winter"];
+const getServerSnapshot = () => null;
 
 /* 1년 중 몇째 주인지로 계절 정하기 (3~5월 봄, 6~8월 여름, 9~11월 가을) */
 function seasonOfWeek(week) {
@@ -69,7 +70,7 @@ function buildGroups(tree, diaries) {
     });
   }
 
-  // getAllDiaries가 이미 주차·특별 소식 순으로 정렬해 주므로 잠긴 칸만 끼워 넣음
+  // mergeDiaries가 이미 주차·특별 소식 순으로 정렬해 주므로 잠긴 칸만 끼워 넣음
   const items = [...openItems, ...lockedItems.map((item) => ({ ...item, isLocked: true }))].sort(
     (a, b) => a.week - b.week,
   );
@@ -81,9 +82,9 @@ function buildGroups(tree, diaries) {
 }
 
 export default function TimelineView() {
-  const treeId = useSelectedTreeId();
+  const snapshot = useSyncExternalStore(subscribeToDiary, getDiaryStorageSnapshot, getServerSnapshot);
 
-  if (treeId === undefined) {
+  if (snapshot === null) {
     return (
       <div className="app-shell">
         <p className="status-message app-content" role="status">
@@ -93,6 +94,7 @@ export default function TimelineView() {
     );
   }
 
+  const { treeId, generatedDiaries } = JSON.parse(snapshot);
   const tree = getTree(treeId);
   if (!tree) return <NoTreeSelected title="성장 타임라인" />;
 
@@ -101,7 +103,7 @@ export default function TimelineView() {
     100,
     Math.max(0, Math.round(((currentWeek - startWeek) / (harvestWeek - startWeek)) * 100)),
   );
-  const groups = buildGroups(tree, getAllDiaries(tree.id));
+  const groups = buildGroups(tree, mergeDiaries(tree.id, generatedDiaries));
 
   return (
     <div className="app-shell" data-season={seasonOfWeek(currentWeek)}>
