@@ -1,6 +1,7 @@
 "use client"
 
 import ChatMessage from "./ChatMessages";
+import ChatForm from "./ChatForm";
 import IconButton from "@/components/common/IconButton";
 import { IconBack, StageIcon } from "@/components/common/Icons";
 
@@ -27,6 +28,7 @@ export default function ChatView() {
             ]}
             loading={false}
             treeName="홍이" />
+            <ChatForm onSend={() => {}} treeName="홍이" />
         </main>
     )
 }
