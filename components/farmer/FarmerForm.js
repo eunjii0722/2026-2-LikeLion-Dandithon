@@ -62,7 +62,7 @@ export default function FarmerForm({ tree }) {
           <div className={styles.field}>
             <label htmlFor="farmer-photo">이번 주 사진</label>
             <input id="farmer-photo" className={`input ${styles.fileInput}`} type="file"
-              accept="image/*" onChange={selectPhoto} aria-describedby="farmer-photo-help" />
+              accept="image/*" onChange={selectPhoto} />
           </div>
           <figure className={styles.noMargin} aria-busy={preparing}>
             {photo ? (
