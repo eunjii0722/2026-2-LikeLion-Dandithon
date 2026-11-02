@@ -65,7 +65,8 @@ function DiaryDetail({ model, savedWords }) {
   return (
     <>
       {!diary.isSpecial && <DiaryPhoto key={diary.photo?.url ?? "placeholder"} photo={diary.photo} />}
-      <DiaryCard diary={diary} savedWords={savedWords} />
+      {/* 같은 ID로 재생성돼도 이전 본문의 뜻풀이·저장 안내가 남지 않게 합니다. */}
+      <DiaryCard key={JSON.stringify([diary.text, diary.dialectWords])} diary={diary} savedWords={savedWords} />
       <section className={styles.evidenceSection} aria-label="일기의 근거">
         <button type="button" className="evidence-toggle" aria-expanded={evidenceOpen}
           aria-controls={evidenceId} onClick={() => setEvidenceOpen(!evidenceOpen)}>
