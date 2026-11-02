@@ -1,4 +1,5 @@
-// 공통 lib/data.js 준비 전 B 담당 목업으로 실제 AI 생성 결과를 화면에서 고치지 않는다.
+// 화면에서 사용하지 않는 이전 구현으로 tests/common-*.test.mjs의 호환성 비교용
+// TODO: 공통 테스트 후 비교 자료를 분리한 뒤 해당 파일 삭제
 const TREE = {
   id: "tree-1", name: "홍이", variety: "[품종]",
   farm: { name: "[○○농원]", region: "청송", dialectRegion: "경북 북부" },

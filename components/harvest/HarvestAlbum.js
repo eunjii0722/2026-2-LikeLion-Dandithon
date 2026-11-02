@@ -9,31 +9,37 @@
    - QR 안내 + 사과 받을 주소 입력 (시연용 가짜 폼)
    ========================================================= */
 
+import { useSyncExternalStore } from "react";
 import AddressForm from "./AddressForm";
 import styles from "./Harvest.module.css";
-import TabBar from "@/components/timeline/TabBar";
+import PhotoPlaceholder from "@/components/common/PhotoPlaceholder";
+import TabBar from "@/components/common/TabBar";
 import NoTreeSelected from "@/components/tree/NoTreeSelected";
 import { withWa } from "@/components/tree/josa";
-import useSelectedTreeId from "@/components/tree/useSelectedTreeId";
-import { getTree } from "@/components/tree/tempData";
-import { getAllDiaries, getLetters, getSavedWords } from "@/components/tree/tempStorage";
+import { getTree, SEASON_NAMES } from "@/lib/data";
+import { getAllDiaries, getLetters, getSavedWords, getSelectedTreeId, subscribeToStorage } from "@/lib/storage";
 import { IconQr } from "@/components/common/Icons";
 
-const SEASONS = [
-  { key: "spring", label: "봄" },
-  { key: "summer", label: "여름" },
-  { key: "autumn", label: "가을" },
-  { key: "winter", label: "겨울" },
-];
-
 const LETTER_MAX_LENGTH = 40;
+const getServerSnapshot = () => null;
 
-/* 계절마다 그 계절의 마지막 정기 일기를 대표 사진으로 */
-function pickSeasonPhotos(diaries) {
-  return SEASONS.flatMap(({ key, label }) => {
+// 편지도 구독 대상에 포함하고, 내용이 같으면 동일한 문자열 snapshot을 반환합니다.
+function getAlbumSnapshot() {
+  const treeId = getSelectedTreeId();
+  return JSON.stringify({
+    treeId,
+    diaries: getAllDiaries(treeId),
+    letters: getLetters(treeId),
+    words: getSavedWords(),
+  });
+}
+
+/* 계절마다 그 계절의 마지막 정기 일기를 대표 사진으로.
+   getAllDiaries가 주차 순으로 정렬해 주므로 마지막 것이 가장 늦은 주 */
+function pickSeasonPhotos(diaries, currentWeek) {
+  return Object.entries(SEASON_NAMES).flatMap(([key, label]) => {
     const diary = diaries
-      .filter((item) => item.season === key && !item.isSpecial)
-      .sort((a, b) => a.week - b.week)
+      .filter((item) => item.season === key && !item.isSpecial && item.week <= currentWeek)
       .at(-1);
     return diary ? [{ type: "photo", key: diary.id, season: key, seasonLabel: label, diary }] : [];
   });
@@ -55,9 +61,9 @@ function shorten(text) {
 }
 
 export default function HarvestAlbum() {
-  const treeId = useSelectedTreeId();
+  const snapshot = useSyncExternalStore(subscribeToStorage, getAlbumSnapshot, getServerSnapshot);
 
-  if (treeId === undefined) {
+  if (snapshot === null) {
     return (
       <div className="app-shell">
         <p className="status-message app-content" role="status">
@@ -67,19 +73,19 @@ export default function HarvestAlbum() {
     );
   }
 
-  const tree = getTree(treeId);
+  const stored = JSON.parse(snapshot);
+  const tree = getTree(stored.treeId);
   if (!tree) return <NoTreeSelected title="수확 앨범" />;
 
-  const diaries = getAllDiaries(tree.id);
-  const letters = getLetters().filter((letter) => letter.treeId === tree.id);
-  const words = getSavedWords();
+  const diaries = stored.diaries.filter((diary) => diary.week <= tree.currentWeek);
+  const { letters, words } = stored;
   const isHarvested = tree.currentWeek >= tree.harvestWeek;
 
   const extras = [
     ...letters.map((letter) => ({ type: "letter", key: letter.id, letter })),
     ...words.map((word, index) => ({ type: "word", key: `word-${index}`, word })),
   ];
-  const cards = interleave(pickSeasonPhotos(diaries), extras);
+  const cards = interleave(pickSeasonPhotos(diaries, tree.currentWeek), extras);
 
   return (
     <div className="app-shell" data-season="autumn">
@@ -114,7 +120,7 @@ export default function HarvestAlbum() {
         <AddressForm treeName={tree.name} />
       </main>
 
-      <TabBar current="album" diaryWeek={tree.currentWeek} />
+      <TabBar currentWeek={tree.currentWeek} />
     </div>
   );
 }
@@ -150,9 +156,9 @@ function AlbumCard({ card }) {
       {diary.photo?.url ? (
         <img className="polaroid-photo" src={diary.photo.url} alt={`${seasonLabel} 사진`} />
       ) : (
-        <span className="polaroid-photo" style={{ background: `var(--season-${season})` }}>
+        <PhotoPlaceholder className="polaroid-photo" style={{ background: `var(--season-${season})` }}>
           [{seasonLabel} 사진]
-        </span>
+        </PhotoPlaceholder>
       )}
       <figcaption className="polaroid-caption">
         {diary.week}주차 · {diary.title}

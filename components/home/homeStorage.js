@@ -1,5 +1,5 @@
-// 테스트용: 공통 lib/storage.js가 준비되기 전까지 사용
-// A의 분양 버튼이 저장하는 기존 키·JSON 형식을 그대로 읽고 새 키를 만들지 않음.
+// 화면에서 사용하지 않는 이전 구현으로 tests/common-*.test.mjs의 호환성 비교용
+// TODO: 공통 테스트 후 비교 자료를 분리한 뒤 해당 파일 삭제
 const SELECTED_TREE_KEY = "selectedTreeId";
 
 export function getSelectedTreeId() {

@@ -3,6 +3,7 @@
 /* 가을 머리 부분과 폴라로이드 사이 여백 */
 .content {
   padding-top: var(--space-5);
+  overflow-wrap: anywhere;
 }
 
 .addressArea {

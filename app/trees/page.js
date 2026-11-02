@@ -1,6 +1,6 @@
 import TreeCard from "@/components/tree/TreeCard";
 import styles from "@/components/tree/Tree.module.css";
-import { getTrees } from "@/components/tree/tempData";
+import { getTrees } from "@/lib/data";
 
 export const metadata = {
   title: "나무 고르기 | 내 사과나무 1년",

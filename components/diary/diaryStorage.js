@@ -1,4 +1,5 @@
-// 공통 lib/storage.js 준비 전 B 담당 임시 어댑터로 공통 안내의 기존 키만 사용한다.
+// 화면에서 사용하지 않는 이전 구현으로 tests/common-*.test.mjs의 호환성 비교용
+// TODO: 공통 테스트 후 비교 자료를 분리한 뒤 해당 파일 삭제
 function read(key, fallback) {
   try { return JSON.parse(window.localStorage.getItem(key)) ?? fallback; }
   catch { return fallback; }
