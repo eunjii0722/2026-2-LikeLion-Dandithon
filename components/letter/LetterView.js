@@ -37,7 +37,7 @@ export default function LetterView() {
                 )}
                 {loaded && tree && (
                     <>
-                    <LetterForm tree={tree}/>
+                    <LetterForm key={tree.id} tree={tree}/>
                     <LetterList letters={letters}/>
                     </>
                 )}
