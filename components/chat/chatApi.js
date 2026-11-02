@@ -7,6 +7,13 @@ function messageText(message) {
     return message.content ?? message.text ?? message/message;
 }
 
+function toApiHistory(messages) {
+    return messages.slice(-MAX_HISTORY).map((message)=> ({
+        role: message.role === "tree" ? "assistant" : "user",
+        content: messageText(message),
+    }));
+}
+
 export async function requestChat ({ treeId, question, messages, recentDiaries }) {
     const response = await fetch("/api/chat", {
         method: "POST",
@@ -14,7 +21,7 @@ export async function requestChat ({ treeId, question, messages, recentDiaries }
         body: JSON.stringify({
             treeId,
             question,
-            history: toApiHistory(message),
+            history: toApiHistory(messages),
             recentDiaries,
         }),
     });

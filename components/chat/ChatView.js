@@ -70,7 +70,8 @@ export default function ChatView() {
                 recentDiaries : getGeneratedDiaries(tree.id),
             });
             if(!addChatMessage({treeId : tree.id, role: "tree", text: answer, source})) setError(ERROR_TEXT);
-        } catch {
+        } catch (caught){
+            console.error("대화 요청 실패 : ", caught);
             setError(ERROR_TEXT);
         } finally {
             setLoading(false);
