@@ -2,8 +2,9 @@
 
 import { useId, useState } from "react";
 import Link from "next/link";
+import Button from "@/components/common/Button";
 import { splitDialectText } from "./diaryUtils";
-import { saveWord } from "./diaryStorage";
+import { saveWord } from "@/lib/storage";
 import styles from "./Diary.module.css";
 
 // 농부 화면 - 생성 일기 미리보기에서 같은 카드를 재사용 가능
@@ -43,8 +44,8 @@ export default function DiaryCard({ diary, savedWords = [] }) {
             <div className="dialect-meaning-word">{selectedWord.word}</div>
             <div className="dialect-meaning-text">{selectedWord.meaning}</div>
           </div>
-          <button type="button" className="btn btn-primary btn-sm" disabled={Boolean(isSaved)}
-            onClick={handleSave}>{isSaved ? "저장됨" : "단어장에 담기"}</button>
+          <Button small disabled={Boolean(isSaved)}
+            onClick={handleSave}>{isSaved ? "저장됨" : "단어장에 담기"}</Button>
         </div>
       )}
       {feedback && <p className={`${feedback.error ? "error-message" : "status-message"} ${styles.noMargin}`}
