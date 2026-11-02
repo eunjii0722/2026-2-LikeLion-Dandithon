@@ -11,13 +11,8 @@
    ========================================================= */
 
 import { useSyncExternalStore } from "react";
-import { getSelectedTreeId } from "./tempStorage";
-
-function subscribe(onChange) {
-  window.addEventListener("storage", onChange);
-  return () => window.removeEventListener("storage", onChange);
-}
+import { getSelectedTreeId, subscribeToSelectedTree } from "@/lib/storage";
 
 export default function useSelectedTreeId() {
-  return useSyncExternalStore(subscribe, getSelectedTreeId, () => undefined);
+  return useSyncExternalStore(subscribeToSelectedTree, getSelectedTreeId, () => undefined);
 }
