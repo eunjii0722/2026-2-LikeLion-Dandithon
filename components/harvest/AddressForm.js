@@ -8,6 +8,7 @@
    ========================================================= */
 
 import { useState } from "react";
+import Button from "@/components/common/Button";
 import styles from "./Harvest.module.css";
 
 export default function AddressForm({ treeName }) {
@@ -22,9 +23,9 @@ export default function AddressForm({ treeName }) {
   if (!isOpen) {
     return (
       <div className={styles.addressArea}>
-        <button type="button" className="btn btn-primary btn-block" onClick={() => setIsOpen(true)}>
+        <Button block onClick={() => setIsOpen(true)}>
           {treeName}의 사과 받을 주소 입력
-        </button>
+        </Button>
         <p className="caption" style={{ margin: 0 }}>
           시연용 화면이에요. 실제로 주문되지 않아요.
         </p>
@@ -47,9 +48,9 @@ export default function AddressForm({ treeName }) {
         <input className="input" name="address" autoComplete="street-address" required />
       </label>
 
-      <button type="submit" className="btn btn-primary btn-block" disabled={isSubmitted}>
+      <Button type="submit" block disabled={isSubmitted}>
         입력 완료
-      </button>
+      </Button>
       <p className="status-message" role="status" style={{ margin: 0 }}>
         {isSubmitted && "시연이라 주소는 저장되지 않았어요. 실제 서비스에서는 가을에 사과가 이 주소로 가요."}
       </p>

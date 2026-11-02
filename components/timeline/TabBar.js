@@ -1,31 +1,14 @@
 /* =========================================================
-   [임시] 하단 메뉴
+   [호환용] 공통 하단 메뉴 연결
    ---------------------------------------------------------
-   공통 하단 메뉴(C 담당, components/common)가 올라오면
-   이 파일을 지우고 그쪽으로 바꿉니다.
-   - current: "home" | "timeline" | "diary" | "album"
-   - diaryWeek: "일기" 메뉴가 열 주차 (보통 이번 주)
+   하단 메뉴는 components/common/TabBar(C 담당)를 씁니다.
+   홈(components/home/HomeView.js)이 아직 이 경로를 불러오고 있어서
+   예전 사용법(current, diaryWeek)을 받아 공통 메뉴로 넘겨줍니다.
+   홈이 공통 TabBar로 바뀌면 이 파일을 지웁니다.
    ========================================================= */
 
-import Link from "next/link";
-import { IconHome, IconTimeline, IconDiary, IconAlbum } from "@/components/common/Icons";
+import CommonTabBar from "@/components/common/TabBar";
 
-export default function TabBar({ current, diaryWeek }) {
-  const tabs = [
-    { key: "home", label: "홈", href: "/", Icon: IconHome },
-    { key: "timeline", label: "타임라인", href: "/timeline", Icon: IconTimeline },
-    { key: "diary", label: "일기", href: `/diary/${diaryWeek}`, Icon: IconDiary },
-    { key: "album", label: "앨범", href: "/harvest", Icon: IconAlbum },
-  ];
-
-  return (
-    <nav className="tab-bar" aria-label="주요 메뉴">
-      {tabs.map(({ key, label, href, Icon }) => (
-        <Link key={key} href={href} aria-current={current === key ? "page" : undefined}>
-          <Icon />
-          {label}
-        </Link>
-      ))}
-    </nav>
-  );
+export default function TabBar({ diaryWeek }) {
+  return <CommonTabBar currentWeek={diaryWeek} />;
 }

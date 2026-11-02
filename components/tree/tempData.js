@@ -1,9 +1,10 @@
 /* =========================================================
-   [임시] lib/data.js 대역
+   [사용 중지] 예전 임시 나무 데이터
    ---------------------------------------------------------
-   기획의 lib/data.js와 data/*.json이 main에 올라오면 이 파일을 지우고
-   import 경로만 "@/lib/data"로 바꿉니다.
-   데이터 모양은 00_공통_프로젝트_안내.md의 '데이터 모양' 그대로입니다.
+   화면은 모두 lib/data.js를 씁니다. 이 파일은 화면에서 쓰지 않습니다.
+   tests/common-data.test.mjs가 공통 데이터와 예전 A 데이터가 같은지
+   비교하려고 getTrees()를 불러오고 있어서 남겨 둡니다.
+   테스트 담당과 정리되면 지웁니다.
    ========================================================= */
 
 const TREES = [
@@ -19,53 +20,6 @@ const TREES = [
   },
 ];
 
-const DIARIES = [
-  {
-    id: "tree-1-w16",
-    treeId: "tree-1",
-    week: 16,
-    season: "spring",
-    title: "분홍 봉오리가 맺힌 한 주",
-    text: "일기 본문",
-    isSpecial: false,
-    dialectWords: [],
-    photo: { url: null, type: "orchard" },
-    evidence: { growthStage: "개화" },
-  },
-  {
-    id: "tree-1-w18",
-    treeId: "tree-1",
-    week: 18,
-    season: "spring",
-    title: "꽃잎이 날리던 한 주",
-    text: "일기 본문",
-    isSpecial: false,
-    dialectWords: [{ word: "쪼매", meaning: "조금" }],
-    photo: { url: null, type: "orchard" },
-    evidence: { growthStage: "개화" },
-  },
-  {
-    id: "tree-1-w18-special",
-    treeId: "tree-1",
-    week: 18,
-    season: "spring",
-    title: "갑자기 우박이 쏟아졌어요",
-    text: "일기 본문",
-    isSpecial: true,
-    dialectWords: [],
-    photo: { url: null, type: "orchard" },
-    evidence: { growthStage: "개화" },
-  },
-];
-
 export function getTrees() {
   return TREES;
-}
-
-export function getTree(id) {
-  return TREES.find((tree) => tree.id === id) ?? null;
-}
-
-export function getDiaries(treeId) {
-  return DIARIES.filter((diary) => diary.treeId === treeId);
 }

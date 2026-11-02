@@ -5,29 +5,39 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { setSelectedTreeId } from "./tempStorage";
+import Button from "@/components/common/Button";
+import { setSelectedTreeId } from "@/lib/storage";
 import { withWa } from "./josa";
 
 const MOVE_DELAY_MS = 1500;
 
 export default function AdoptButton({ treeId, treeName }) {
   const router = useRouter();
-  const [isDone, setIsDone] = useState(false);
+  const [status, setStatus] = useState("idle"); // idle | done | failed
 
   function handleAdopt() {
-    setSelectedTreeId(treeId);
-    setIsDone(true);
+    if (!setSelectedTreeId(treeId)) {
+      setStatus("failed");
+      return;
+    }
+    setStatus("done");
     setTimeout(() => router.push("/"), MOVE_DELAY_MS);
   }
 
   return (
     <>
-      <p className="status-message" role="status">
-        {isDone && `분양 완료! 이제 ${withWa(treeName)} 1년을 함께해요. 홈으로 이동할게요.`}
-      </p>
-      <button type="button" className="btn btn-primary btn-block" onClick={handleAdopt} disabled={isDone}>
+      {status === "failed" ? (
+        <p className="error-message" role="alert">
+          브라우저에 저장하지 못했어요. 사생활 보호 모드라면 끄고 다시 시도해 주세요.
+        </p>
+      ) : (
+        <p className="status-message" role="status">
+          {status === "done" && `분양 완료! 이제 ${withWa(treeName)} 1년을 함께해요. 홈으로 이동할게요.`}
+        </p>
+      )}
+      <Button block onClick={handleAdopt} disabled={status === "done"}>
         이 나무 분양받기
-      </button>
+      </Button>
     </>
   );
 }
