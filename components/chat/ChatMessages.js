@@ -1,13 +1,13 @@
 // 말풍선 목록
 
 function sourceLabel(source) {
-    return typeof source == "string" && source.trim() ? `근거 · ${source}` : "기록에 없는 내용이에요";
+    return typeof source === "string" && source.trim() ? `근거 · ${source}` : "기록에 없는 내용이에요";
 }
 
-export default function ChatMessage({ message, loading, treeName, endRef }) {
+export default function ChatMessage({ messages, loading, treeName, endRef }) {
     return (
         <div className="chat-list" aria-live = "polite">
-            {message.map((message, index) => {
+            {messages.map((message, index) => {
                 const content = message.content ?? message.text ?? message.message;
 
                 if (message.role === "user") {
@@ -20,7 +20,7 @@ export default function ChatMessage({ message, loading, treeName, endRef }) {
 
                 return (
                     <div key={index} className="bubble-group">
-                        <div className="bubble-tree">{content}</div>
+                        <div className="bubble bubble-tree">{content}</div>
                         <div className="bubble-source">{sourceLabel(message.source)}</div>
                     </div>
                 );
