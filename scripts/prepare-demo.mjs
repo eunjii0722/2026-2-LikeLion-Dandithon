@@ -3,11 +3,13 @@ import { readFile, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import assert from "node:assert/strict";
 import { isDiary } from "../lib/data.js";
+import { publishDemoDiaries, demoSavedWords } from "./demo-editorial.mjs";
 
 const root = new URL("../", import.meta.url);
 const read = async (path) => JSON.parse(await readFile(new URL(path, root), "utf8"));
 const write = (path, value) => writeFile(new URL(path, root), JSON.stringify(value, null, 2) + "\n");
 const plan = await read("data/demo/plan.json");
+const overrides = await read("data/demo/editorial.json");
 const base = new URL(process.argv[2] ?? "http://127.0.0.1:3020");
 assert.ok(["127.0.0.1", "localhost", "[::1]"].includes(base.hostname), "Only local servers are allowed");
 let records;
@@ -84,12 +86,9 @@ if (process.exitCode || diaries.length !== 4 || diaries.some((diary) => !isDiary
   process.exitCode = 1;
 } else {
   assert.deepEqual(diaries.map((diary) => diary.week), [18, 21, 28, 35]);
-  const savedWords = [];
-  for (const diary of diaries) {
-    const word = diary.dialectWords.find((entry) => !savedWords.some((saved) => saved.word === entry.word && saved.meaning === entry.meaning));
-    if (word) savedWords.push({ ...word, week: diary.week });
-  }
-  await write("data/diaries.json", diaries);
-  await write("public/demo/history.json", { selectedTreeId: plan.treeId, letters, generatedDiaries: [], savedWords, chatHistory: [] });
+  const published = publishDemoDiaries(records, overrides);
+  const savedWords = demoSavedWords(published);
+  await write("data/diaries.json", published);
+  await write("public/demo/history.json", { selectedTreeId: plan.treeId, letters, generatedDiaries: published, savedWords, chatHistory: [], "dandithon.demoState": { version: 1, treeId: plan.treeId, currentWeek: 39, asOf: "2026-09-26T09:00:00+09:00" }, "dandithon.adoption": { treeId: plan.treeId, adoptedAt: "2026-04-04T09:00:00+09:00" } });
   console.log(`Published ${diaries.length} API diaries, ${letters.length} fictional letters, ${savedWords.length} fictional word saves. Week 39 remains ungenerated.`);
 }

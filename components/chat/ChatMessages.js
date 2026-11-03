@@ -4,7 +4,7 @@ function sourceLabel(source) {
     return typeof source === "string" && source.trim() ? `근거 · ${source}` : "기록에 없는 내용이에요";
 }
 
-export default function ChatMessage({ messages, loading, treeName, endRef }) {
+export default function ChatMessage({ messages, loading, delayNotice, treeName, endRef }) {
     return (
         <div className="chat-list" aria-live = "polite">
             {messages.map((message, index) => {
@@ -28,6 +28,7 @@ export default function ChatMessage({ messages, loading, treeName, endRef }) {
             {loading && (
                 <p className="status-message" role = "status">
                     {treeName}가 생각하는 중...
+                    {delayNotice && <><br />{delayNotice}</>}
                 </p>
             )}
             <div ref={endRef}/>

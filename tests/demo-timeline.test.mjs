@@ -6,11 +6,13 @@ import { DEMO_KEYS, installDemoHistory, validDemoHistory } from "../public/demo/
 import { getDiaries, getDiary, getDiaryModel, getHomeDataForTree, getTree, isDiary } from "../lib/data.js";
 import * as storage from "../lib/storage.js";
 import { createDiaryRequest, createFarmerWorkflow, isVision } from "../components/farmer/farmerWorkflow.js";
+import { publishDemoDiaries } from "../scripts/demo-editorial.mjs";
 
 const json = async (path) => JSON.parse(await readFile(new URL(path, import.meta.url), "utf8"));
 const records = await json("../data/demo/records.json");
 const plan = await json("../data/demo/plan.json");
 const history = await json("../public/demo/history.json");
+const overrides = await json("../data/demo/editorial.json");
 const success = (attempts) => attempts.find((attempt) => attempt.status === 200)?.response;
 function browser() {
   const values = new Map();
@@ -44,14 +46,19 @@ test("four source photos are linked by hash to actual captured Vision responses"
   assert.equal(success(records[1].visionAttempts).growth_stage, "착색", "keep the actual disagreement");
 });
 
-test("static diaries preserve API output exactly except the linked photo URL", () => {
+test("captured API bytes remain immutable and published diaries differ only by approved editorial fields", async () => {
+  const bytes = await readFile(new URL("../data/demo/records.json", import.meta.url));
+  assert.equal(createHash("sha256").update(bytes).digest("hex"), "6a1a1d3f525f26b602871e2f2a7bc183c70cec0dadbea7ea8f73ebe1483db61f");
   const diaries = getDiaries("tree-1");
   assert.equal(diaries.length, 4);
+  assert.deepEqual(diaries, publishDemoDiaries(records, overrides));
   for (const record of records) {
     const original = success(record.diaryAttempts);
     assert.ok(isDiary(original));
-    const diary = diaries.find((item) => item.id === original.id);
-    assert.deepEqual(diary, { ...original, photo: { ...original.photo, url: record.photo.url } });
+    const { displayStage, ...diary } = diaries.find((item) => item.id === original.id);
+    assert.equal(displayStage, record.week === 21 ? "착과" : undefined, "only the reviewed week 21 label is added");
+    const restored = { ...diary, title: original.title, text: original.text, dialectWords: original.dialectWords };
+    assert.deepEqual(restored, { ...original, photo: { ...original.photo, url: record.photo.url } });
     assert.equal(diary.evidence.growthStage, success(record.visionAttempts).growth_stage);
     assert.equal(diary.evidence.observedAt, record.observedAt);
     assert.equal(diary.season, record.week <= 21 ? "spring" : "summer");
@@ -105,9 +112,9 @@ test("autumn photo exists but no week 39 diary is seeded; harvest remains future
   assert.equal(plan.liveDemo.generateInAdvance, false);
   assert.equal(getTree("tree-1").currentWeek, 39);
   assert.equal(getTree("tree-1").harvestWeek, 41);
-  assert.equal(getDiaryModel({ treeId: "tree-1" }, 39).status, "missing");
-  assert.equal(getDiaryModel({ treeId: "tree-1" }, 41).status, "future");
-  assert.deepEqual(history.generatedDiaries, []);
+  assert.equal(getDiaryModel({ treeId: "tree-1", generatedDiaries: history.generatedDiaries, demoState: history["dandithon.demoState"] }, 39).status, "missing");
+  assert.equal(getDiaryModel({ treeId: "tree-1", generatedDiaries: history.generatedDiaries, demoState: history["dandithon.demoState"] }, 41).status, "future");
+  assert.deepEqual(history.generatedDiaries, getDiaries("tree-1"));
 });
 
 test("explicit initialization writes only agreed keys, notifies once, and common getters read everything", () => {
@@ -121,7 +128,7 @@ test("explicit initialization writes only agreed keys, notifies once, and common
   assert.equal(storage.getSelectedTreeId(), "tree-1");
   assert.deepEqual(storage.getLetters("tree-1"), history.letters);
   assert.deepEqual(storage.getSavedWords(), history.savedWords);
-  assert.deepEqual(storage.getGeneratedDiaries(), []);
+  assert.deepEqual(storage.getGeneratedDiaries(), history.generatedDiaries);
   assert.equal(storage.getAllDiaries("tree-1").length, 4);
   assert.deepEqual(storage.getLetters("tree-2"), []);
   assert.equal(getHomeDataForTree("tree-1", storage.getGeneratedDiaries()).diary.week, 35);
@@ -209,7 +216,7 @@ test("mocked live week 39 workflow generates without letters, preserving all his
       requests.push({ url, input });
       if (url === "/api/vision") return Response.json(vision);
       assert.deepEqual(storage.getLetters(), history.letters);
-      assert.equal(storage.getGeneratedDiaries().length, 0);
+      assert.equal(storage.getGeneratedDiaries().length, 4);
       return Response.json({ ...getDiary("tree-1", 18), id: "tree-1-w39", week: 39, season: "autumn",
         title: "격리된 테스트 일기", text: "테스트 응답이며 실제 Gemini 기록이 아닙니다.", dialectWords: [],
         photo: { url: null, type: input.photoType }, evidence: { growthStage: vision.growth_stage, confidence: vision.confidence,

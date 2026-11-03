@@ -1,5 +1,5 @@
 export default function PhotoPlaceholder({
-    children = "사진 준비 중",
+    children = "아직 나무 사진이 올라오지 않았어요.",
     className= "",
     style,
     ...rest
@@ -9,7 +9,7 @@ export default function PhotoPlaceholder({
         role = "img"
         aria-label="사진 자리"
         className={["photo-placeholder", className].filter(Boolean).join(" ")}
-        style={{minHeight:120, ...style}}
+        style={{minHeight:120, textAlign:"center", ...style}}
         {...rest}>
             {children}
         </div>

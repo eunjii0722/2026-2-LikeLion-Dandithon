@@ -7,7 +7,7 @@ import { getDiaryModel as oldDiary, getDiaryHref as oldHref } from "../component
 import { DIARY_DIALECT_WORDS } from "../lib/prompts/diary.js";
 
 test("static trees preserve the A/B identity and placeholders", () => {
-  assert.deepEqual(data.getTrees(), oldTrees().map(tree => ({ ...tree, currentWeek: 39 })));
+  assert.deepEqual(data.getTrees(), oldTrees().map(tree => ({ ...tree, currentWeek: 39, photo: "/images/demo/baby_apple_tree.jpg" })));
   assert.equal(data.getTree("tree-1").name, "홍이");
   assert.equal(data.getTree("tree-1").farm.region, "청송");
   for (const tree of data.getTrees()) {
@@ -99,11 +99,13 @@ test("unknown observations may be null; missing required keys are not fabricated
 });
 
 test("Home and Diary selectors preserve B status, navigation and special-diary contracts", () => {
-  assert.deepEqual(data.getHomeDataForTree("tree-1").tree, data.getTree("tree-1"));
-  assert.equal(data.getHomeDataForTree("tree-1").diary.id, "tree-1-w35");
+  const seed = data.getDiaries("tree-1");
+  const demoState = { version: 1, treeId: "tree-1", currentWeek: 39 };
+  assert.deepEqual(data.getHomeDataForTree("tree-1", seed, demoState).tree, data.getTree("tree-1"));
+  assert.equal(data.getHomeDataForTree("tree-1", seed, demoState).diary.id, "tree-1-w35");
   const weeks = [18, 21, 28, 35];
   for (const week of [1, 16, 17, ...weeks, 39, 41, 53]) {
-    const actual = data.getDiaryModel({ treeId: "tree-1" }, week);
+    const actual = data.getDiaryModel({ treeId: "tree-1", generatedDiaries: seed, demoState }, week);
     assert.equal(actual.status, week > 39 ? "future" : weeks.includes(week) ? "ready" : "missing");
     if (actual.status === "ready") {
       assert.equal(actual.previousWeek, weeks[weeks.indexOf(week) - 1] ?? null);
@@ -115,9 +117,9 @@ test("Home and Diary selectors preserve B status, navigation and special-diary c
   // Keep the old special-news fixture as a regression case, not a fabricated live observation.
   const special = oldDiary({ treeId: "tree-1" }, 18, "tree-1-w18-special").diary;
   assert.equal(data.getDiaryHref(special), oldHref(special));
-  const model = data.getDiaryModel({ treeId: "tree-1", generatedDiaries: [special] }, 18);
+  const model = data.getDiaryModel({ treeId: "tree-1", generatedDiaries: [...seed, special] }, 18);
   assert.deepEqual(model.related.map(item => item.id), [special.id]);
-  assert.equal(data.getDiaryModel({ treeId: "tree-1", generatedDiaries: [special] }, 18, special.id).diary.id, special.id);
+  assert.equal(data.getDiaryModel({ treeId: "tree-1", generatedDiaries: [...seed, special] }, 18, special.id).diary.id, special.id);
   assert.equal(data.getDiaryModel().status, "no-tree");
   assert.equal(data.getDiaryHref(null), null);
 });

@@ -1,5 +1,5 @@
 // Explicit browser-console entry point. Importing this module does not write anything.
-export const DEMO_KEYS = Object.freeze(["letters", "generatedDiaries", "savedWords", "chatHistory", "selectedTreeId"]);
+export const DEMO_KEYS = Object.freeze(["letters", "generatedDiaries", "savedWords", "chatHistory", "selectedTreeId", "dandithon.demoState", "dandithon.adoption"]);
 const diaryWeeks = [18, 21, 28, 35];
 const text = (value) => typeof value === "string" && value.trim().length > 0;
 
@@ -7,13 +7,23 @@ export function validDemoHistory(history) {
   if (!history || Object.keys(history).length !== DEMO_KEYS.length
     || !DEMO_KEYS.every((key) => Object.hasOwn(history, key)) || history.selectedTreeId !== "tree-1"
     || !["letters", "generatedDiaries", "savedWords", "chatHistory"].every((key) => Array.isArray(history[key]))
-    || history.generatedDiaries.length || history.chatHistory.length || history.letters.length !== 7) return false;
+    || history.generatedDiaries.length !== 4 || history.chatHistory.length || history.letters.length !== 7) return false;
+  if (history["dandithon.demoState"]?.version !== 1 || history["dandithon.demoState"].treeId !== "tree-1"
+    || history["dandithon.demoState"].currentWeek !== 39) return false;
+  // Past adopter on a fictional timeline: both dates are fixed so the elapsed period cannot drift.
+  if (history["dandithon.adoption"]?.treeId !== "tree-1"
+    || !(Date.parse(history["dandithon.adoption"].adoptedAt) < Date.parse(history["dandithon.demoState"].asOf))) return false;
+  if (!diaryWeeks.every(week => history.generatedDiaries.some(diary => diary?.id === `tree-1-w${week}`
+    && diary.treeId === "tree-1" && diary.week === week && diary.isSpecial === false
+    && text(diary.title) && text(diary.text) && Array.isArray(diary.dialectWords) && diary.photo && diary.evidence))) return false;
   if (new Set(history.letters.map((letter) => letter?.id)).size !== history.letters.length) return false;
   if (!history.letters.every((letter) => letter && text(letter.id) && letter.treeId === "tree-1"
     && Number.isInteger(letter.week) && letter.week >= 1 && letter.week <= 35
     && text(letter.text) && letter.text.length <= 200 && text(letter.createdAt) && Number.isFinite(Date.parse(letter.createdAt))
     && diaryWeeks.some((week) => letter.usedInDiaryId === `tree-1-w${week}` && letter.week <= week))) return false;
-  return history.savedWords.every((word) => word && text(word.word) && text(word.meaning) && diaryWeeks.includes(word.week))
+  return history.savedWords.every((word) => word && text(word.word) && text(word.meaning) && diaryWeeks.includes(word.week)
+    && history.generatedDiaries.some(diary => diary.week === word.week && diary.text.includes(word.word)
+      && diary.dialectWords.some(entry => entry.word === word.word && entry.meaning === word.meaning)))
     && new Set(history.savedWords.map((word) => JSON.stringify([word.word, word.meaning]))).size === history.savedWords.length;
 }
 

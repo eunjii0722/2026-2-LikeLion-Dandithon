@@ -24,7 +24,7 @@ import { getTree, getDiaries } from '../lib/data.js';
 import { getSelectedTreeId, getAllDiaries } from '../lib/storage.js';
 import Client from './probe-client.js';
 export default function Page() {
-  if (getSelectedTreeId() !== null || getAllDiaries('tree-1').length !== 4) throw new Error('SSR_STORAGE_FAILED');
+  if (getSelectedTreeId() !== null || getAllDiaries('tree-1').length !== 0) throw new Error('SSR_STORAGE_FAILED');
   return <><div>server-tree: {getTree('tree-1').name}</div><div>server-diaries: {getDiaries('tree-1').length}</div><Client /></>;
 }
 `);

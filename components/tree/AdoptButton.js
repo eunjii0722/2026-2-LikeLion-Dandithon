@@ -6,7 +6,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/common/Button";
-import { setSelectedTreeId } from "@/lib/storage";
+import { adoptTree } from "@/lib/storage";
 import { withWa } from "./josa";
 
 const MOVE_DELAY_MS = 1500;
@@ -16,7 +16,7 @@ export default function AdoptButton({ treeId, treeName }) {
   const [status, setStatus] = useState("idle"); // idle | done | failed
 
   function handleAdopt() {
-    if (!setSelectedTreeId(treeId)) {
+    if (!adoptTree(treeId)) {
       setStatus("failed");
       return;
     }

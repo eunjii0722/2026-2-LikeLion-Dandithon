@@ -34,7 +34,7 @@ test("SSR getters and mutations are safe without window", () => {
   delete globalThis.window;
   assert.equal(store.getSelectedTreeId(), null);
   for (const getter of [store.getLetters, store.getChatHistory, store.getGeneratedDiaries, store.getSavedWords]) assert.deepEqual(getter(), []);
-  assert.equal(store.getAllDiaries("tree-1").length, 4);
+  assert.equal(store.getAllDiaries("tree-1").length, 0);
   assert.equal(store.setSelectedTreeId("tree-1"), false);
   assert.equal(store.addLetter(letter()), false);
   assert.equal(store.addGeneratedDiary(diary()), false);
@@ -58,7 +58,7 @@ test("corrupt JSON and wrong array types recover on the next successful write", 
     for (const key of keys) values.set(key, bad);
     assert.equal(store.getSelectedTreeId(), null);
     for (const getter of [store.getLetters, store.getChatHistory, store.getGeneratedDiaries, store.getSavedWords]) assert.deepEqual(getter(), []);
-    assert.equal(store.getAllDiaries("tree-1").length, 4);
+    assert.equal(store.getAllDiaries("tree-1").length, 0);
     assert.equal(store.setSelectedTreeId("tree-1"), true);
     assert.equal(store.addLetter(letter()), true);
     assert.equal(store.addGeneratedDiary(diary()), true);
@@ -88,19 +88,19 @@ test("selected tree uses the existing JSON string key and can be cleared", () =>
   assert.equal(values.get("selectedTreeId"), "null");
 });
 
-test("static and generated diaries merge, last same-ID generation wins, special diary survives", () => {
+test("saved diaries only: last same-ID generation wins, special diary survives", () => {
   assert.equal(store.addGeneratedDiary(diary("first")), true);
   assert.equal(store.addGeneratedDiary(diary("latest")), true);
   assert.equal(store.getGeneratedDiaries().length, 1);
   const special = { ...diary(), id: "tree-1-w18-special", isSpecial: true };
   assert.equal(store.addGeneratedDiary(special), true);
   const all = store.getAllDiaries("tree-1");
-  assert.equal(all.length, 5);
+  assert.equal(all.length, 2);
   assert.equal(all.find(item => item.id === "tree-1-w18").title, "latest");
   assert.ok(all.some(item => item.id === "tree-1-w18-special"));
   const snapshot = JSON.parse(store.getDiaryStorageSnapshot());
   assert.equal(getDiaryModel({ treeId: "tree-1", generatedDiaries: snapshot.generatedDiaries }, 18).diary.title, "latest");
-  assert.equal(getHomeDataForTree("tree-1", snapshot.generatedDiaries).diary.id, "tree-1-w35");
+  assert.equal(getHomeDataForTree("tree-1", snapshot.generatedDiaries).diary.id, "tree-1-w18");
   assert.deepEqual(store.getAllDiaries("missing"), []);
 });
 
@@ -238,7 +238,7 @@ test("snapshot is stable, compatible with B, read-only and immutable across call
   const snapshot = store.getDiaryStorageSnapshot();
   const before = writes.length;
   assert.equal(snapshot, store.getDiaryStorageSnapshot());
-  assert.deepEqual(JSON.parse(snapshot), JSON.parse(oldDiaryStorage.getDiaryStorageSnapshot()));
+  assert.deepEqual(JSON.parse(snapshot), { ...JSON.parse(oldDiaryStorage.getDiaryStorageSnapshot()), demoState: null, adoptionWeeks: 0 });
   assert.equal(writes.length, before);
   store.getGeneratedDiaries()[0].title = "external mutation";
   assert.equal(store.getGeneratedDiaries()[0].title, "생성 결과");

@@ -128,7 +128,7 @@ export function IconQr({ size = 26, ...props }) {
    stage 값은 Vision 결과의 growth_stage와 같습니다:
    "휴면" | "개화" | "착과" | "비대" | "착색" | "수확기" | "판단 불가"
    - 개화·착과·비대·착색: 시안 그대로
-   - 수확기: 착색과 같은 그림
+   - 수확기, 수확 직전(화면 표시 전용 시기 표현): 착색과 같은 그림
    - 휴면, 판단 불가: 시안에 없어서 새로 그림 (공통 디자인 담당이 바꿔도 됨) */
 export function StageIcon({ stage, size = 28 }) {
   const common = {
@@ -175,6 +175,7 @@ export function StageIcon({ stage, size = 28 }) {
       );
 
     case "착색":
+    case "수확 직전":
     case "수확기": // 빨갛게 익은 열매 (채움색은 사과 빨강 고정)
       return (
         <svg {...common}>

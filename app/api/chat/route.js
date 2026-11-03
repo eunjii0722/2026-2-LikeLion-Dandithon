@@ -33,17 +33,28 @@ async function readBoundedJson(request) {
 }
 
 export async function POST(request) {
+  const started = performance.now();
+  let geminiMs = 0;
+  if (process.env.NODE_ENV === "development") console.debug("[chat timing]", { phase: "server-received" });
+  const respond = (body, init = {}) => Response.json(body, {
+    ...init, ...(process.env.NODE_ENV === "development" ? { headers: {
+      "Server-Timing": `total;dur=${(performance.now() - started).toFixed(1)}, gemini;dur=${geminiMs.toFixed(1)}`,
+    } } : {}),
+  });
   try {
     const parsed = await readBoundedJson(request);
-    if (parsed.error) return Response.json({ error: parsed.error }, { status: parsed.status });
+    if (parsed.error) return respond({ error: parsed.error }, { status: parsed.status });
     const contract = parseChatPayload(parsed.value);
-    if (contract.error) return Response.json({ error: contract.error }, { status: contract.status });
-    const result = await answerTreeQuestion(contract.value);
-    return Response.json(result);
+    if (contract.error) return respond({ error: contract.error }, { status: contract.status });
+    let result;
+    const aiStarted = performance.now();
+    try { result = await answerTreeQuestion(contract.value); }
+    finally { geminiMs = performance.now() - aiStarted; }
+    return respond(result);
   } catch (error) {
     if (error instanceof ChatServiceError) {
-      return Response.json({ error: error.message }, { status: error.status });
+      return respond({ error: error.message }, { status: error.status });
     }
-    return Response.json({ error: '대화 요청을 처리하는 중 서버 오류가 발생했습니다.' }, { status: 500 });
+    return respond({ error: '대화 요청을 처리하는 중 서버 오류가 발생했습니다.' }, { status: 500 });
   }
 }

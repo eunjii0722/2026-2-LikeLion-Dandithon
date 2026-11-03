@@ -124,7 +124,7 @@ export default function FarmerForm({ tree }) {
           {error && <p className={`error-message ${styles.noMargin}`} role="alert">{error}</p>}
           <div className={styles.fields}>
             <div className={styles.field}>
-              <label htmlFor="farmer-week">주차</label>
+              <label htmlFor="farmer-week">생육 주차</label>
               <select id="farmer-week" className="input" value={week} onChange={(event) => changeInput(setWeek, event.target.value)}>
                 {Array.from({ length: 53 }, (_, index) => index + 1).map((value) => (
                   <option key={value} value={value}>{value}주차</option>
@@ -210,9 +210,7 @@ export default function FarmerForm({ tree }) {
           </p>}
           {saveResult && (!saveResult.saved || saveResult.unmarked.length > 0) && <Button variant="secondary"
             disabled={Boolean(busy)} onClick={actions.persist}>{saveResult.saved ? "편지 반영 다시 시도" : "저장 다시 시도"}</Button>}
-          {saveResult?.saved && Number(week) > tree.currentWeek && <p className={`caption ${styles.noMargin}`}>
-            현재 나무의 {tree.currentWeek}주차보다 이후 기록이므로 홈·타임라인에는 아직 표시되지 않아요.
-          </p>}
+
           {diary ? <DiaryCard key={JSON.stringify([diary.id, diary.text, diary.dialectWords])} diary={diary} savedWords={savedWords} /> : <div className="card-diary">
             <p className="diary-text">아직 만든 일기가 없어요.</p>
             <p className={`caption ${styles.noMargin}`}>사진과 기록으로 만든 일기가 여기에 보여요.</p>

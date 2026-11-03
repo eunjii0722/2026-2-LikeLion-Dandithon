@@ -56,7 +56,7 @@ async function AdoptSummary({ params }) {
           </dd>
           <dt>분양 기간</dt>
           <dd>
-            {tree.startWeek}주차부터 {tree.harvestWeek}주차 수확까지
+            생육 {tree.startWeek}주차부터 {tree.harvestWeek}주차 수확까지
           </dd>
         </dl>
       </Card>
