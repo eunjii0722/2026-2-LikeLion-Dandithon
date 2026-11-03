@@ -1,9 +1,9 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
+import Button from "@/components/common/Button";
 import Card from "@/components/common/Card";
 import PhotoPlaceholder from "@/components/common/PhotoPlaceholder";
 import TopBar from "@/components/common/TopBar";
-import AdoptButton from "@/components/tree/AdoptButton";
 import styles from "@/components/tree/Tree.module.css";
 import { getTree, getTrees } from "@/lib/data";
 
@@ -59,7 +59,9 @@ async function TreeProfile({ params }) {
       <p className="dialect-meaning">이 나무는 {tree.farm.dialectRegion} 말투로 일기를 써요</p>
 
       <div className={styles.footer}>
-        <AdoptButton treeId={tree.id} treeName={tree.name} />
+        <Button href={`/trees/${tree.id}/adopt`} block>
+          이 나무 분양받기
+        </Button>
       </div>
     </>
   );
