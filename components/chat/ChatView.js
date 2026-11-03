@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import ChatMessage from "./ChatMessages";
 import ChatForm from "./ChatForm";
@@ -12,40 +12,42 @@ import {
     addChatMessage,
     getAllDiaries,
     getChatHistory,
-    getGeneratedDiaries,
     getSelectedTreeId,
     subscribeToStorage,
  } from "@/lib/storage";
-import { requestChat } from "./chatApi";
+import { requestChat, toChatDiaries, visibleDiaries } from "./chatApi";
 
 const SAMPLE_QUESTIONS = ["요즘 날씨 어땠어?", "꽃은 언제 폈어?"];
 const ERROR_TEXT = "지금은 홍이가 대답하기 어려워요. 잠시 후 다시 물어봐주세요.";
 
+const subscribe = (onChange) => subscribeToStorage(onChange, ["selectedTreeId", "chatHistory", "generatedDiaries"]);
+const getServerSnapshot = () => null;
+
+// 같은 내용은 같은 문자열로 반환해 불필요한 재렌더링을 막음
+function getSnapshot() {
+    const treeId = getSelectedTreeId();
+    const found = treeId ? getTree(treeId) : null;
+    const diaries = found ? visibleDiaries(getAllDiaries(found.id), found.currentWeek) : [];
+    const latest = [...diaries].sort((a,b) => b.week - a.week)[0];
+    return JSON.stringify({
+        treeId,
+        messages: treeId ? getChatHistory(treeId) : [],
+        stage: latest?.evidence?.growthStage,
+    });
+}
+
 export default function ChatView() {
     const router = useRouter();
     const endRef = useRef(null);
-    const [loaded, setLoaded] = useState(false);
-    const [tree, setTree] = useState(null);
-    const [stage, setStage] = useState(undefined);
-    const [messages, setMessages] = useState([]);
+    const snapshot = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const refresh = useCallback(() => {
-        const treeId = getSelectedTreeId();
-        const found = treeId ? getTree(treeId) : null;
-        setTree(found);
-        setMessages(treeId ? getChatHistory(treeId) : []);
-        const diaries = treeId ? getAllDiaries(treeId) : [];
-        const latest = [...diaries].sort((a,b) => b.week - a.week)[0];
-        setStage(latest?.evidence?.growthStage);
-        setLoaded(true);
-    }, []);
-
-    useEffect(() => {
-        refresh();
-        return subscribeToStorage(refresh, ["selectedTreeId", "chatHistory", "generatedDiaries"]);
-    }, [refresh]);
+    const { loaded, tree, stage, messages } = useMemo(() => {
+        if (snapshot === null) return { loaded: false, tree: null, stage: undefined, messages: [] };
+        const { treeId, stage, messages } = JSON.parse(snapshot);
+        return { loaded: true, tree: treeId ? getTree(treeId) : null, stage, messages };
+    }, [snapshot]);
 
     useEffect(()=>{
         endRef.current?.scrollIntoView?.({ block: "end"});
@@ -67,7 +69,7 @@ export default function ChatView() {
                 treeId : tree.id,
                 question,
                 messages : previous,
-                recentDiaries : getGeneratedDiaries(tree.id),
+                recentDiaries : toChatDiaries(getAllDiaries(tree.id), tree.currentWeek),
             });
             if(!addChatMessage({treeId : tree.id, role: "tree", text: answer, source})) setError(ERROR_TEXT);
         } catch (caught){
