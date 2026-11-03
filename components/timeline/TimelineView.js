@@ -19,6 +19,9 @@ import { getDiaryStorageSnapshot, subscribeToDiary } from "@/lib/storage";
 const SEASON_ORDER = ["spring", "summer", "autumn", "winter"];
 const getServerSnapshot = () => null;
 
+/* 아직 오지 않은 계절 칸의 예고 단계 (봄 개화 → 여름 성장 → 가을 수확) */
+const UPCOMING_STAGE = { spring: "개화", summer: "성장", autumn: "수확", winter: "휴면" };
+
 /* 1년 중 몇째 주인지로 계절 정하기 (3~5월 봄, 6~8월 여름, 9~11월 가을) */
 function seasonOfWeek(week) {
   const month = Math.min(12, Math.floor(((week - 1) * 7) / 30.44) + 1);
@@ -58,7 +61,13 @@ function buildGroups(tree, diaries) {
     const season = seasonOfWeek(week);
     if (season === seasonOfWeek(currentWeek) || season === harvestSeason) continue;
     if (lockedItems.some((item) => item.season === season)) continue;
-    lockedItems.push({ key: `locked-${week}`, week, season, stage: null, headline: "그 주가 되면 일기가 열려요" });
+    lockedItems.push({
+      key: `locked-${week}`,
+      week,
+      season,
+      stage: UPCOMING_STAGE[season],
+      headline: "그 주가 되면 일기가 열려요",
+    });
   }
   if (harvestWeek > currentWeek) {
     lockedItems.push({

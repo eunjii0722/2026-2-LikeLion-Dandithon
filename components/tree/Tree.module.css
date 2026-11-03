@@ -47,6 +47,15 @@
   margin: 0;
 }
 
+/* 분양 신청: 분양받으면 받는 것 목록 */
+.benefits {
+  margin: var(--space-2) 0 0;
+  padding-left: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
 /* 고른 나무가 없을 때 안내 카드 */
 .empty {
   display: flex;
