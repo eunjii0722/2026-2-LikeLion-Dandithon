@@ -6,11 +6,41 @@ import Button from "@/components/common/Button";
 import Card from "@/components/common/Card";
 import PhotoPlaceholder from "@/components/common/PhotoPlaceholder";
 import { preparePhoto } from "./preparePhoto";
+import { useObservedWeather } from "./useObservedWeather";
 import styles from "./Farmer.module.css";
 
 function today() {
   const now = new Date();
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+}
+
+function ObservedWeather({ result }) {
+  if (!result) return <p className={`status-message ${styles.noMargin}`} role="status">날씨를 불러오고 있어요...</p>;
+  const observed = result.weather ?? result.partialWeather;
+  if (!observed) {
+    return (
+      <div className={`evidence-grid ${styles.evidence}`} role="status">
+        <div className={styles.fullWidth}>
+          <span className="evidence-label">날씨</span>
+          <span>기상 관측자료 없음</span>
+          <span className="caption"> · {result.message}</span>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className={`evidence-grid ${styles.evidence}`} role="status">
+      <div><span className="evidence-label">최고 기온</span><span>{observed.tempMax}°C</span></div>
+      <div><span className="evidence-label">최저 기온</span><span>{observed.tempMin}°C</span></div>
+      <div className={styles.fullWidth}>
+        <span className="evidence-label">강수량</span>
+        <span>{observed.rainMm === null ? "기록 없음" : `${observed.rainMm}mm`}</span>
+      </div>
+      <p className={`caption ${styles.noMargin} ${styles.fullWidth}`}>
+        출처: {result.source.provider} {result.source.network} · {result.source.stationName} 관측지점
+      </p>
+    </div>
+  );
 }
 
 export default function FarmerForm({ tree }) {
@@ -24,6 +54,7 @@ export default function FarmerForm({ tree }) {
   const [preparing, setPreparing] = useState(false);
   const [error, setError] = useState("");
   const photoRequest = useRef(0);
+  const observedWeather = useObservedWeather(tree.id, observedAt);
 
   useEffect(() => () => { photoRequest.current += 1; }, []);
 
@@ -49,11 +80,13 @@ export default function FarmerForm({ tree }) {
     }
   }
 
-  // TODO(2단계): getWeather 조회 규격 확인 및 미반영 편지 조회 연결.
+  // TODO(2단계): 미반영 편지 조회 연결.
   // TODO(3단계): /api/vision, /api/diary fetch와 대기·오류·재시도 상태 연결.
+  // /api/diary의 weather에는 조회가 끝난 observedWeather.weather(객체 또는 null)를 그대로 전달.
+  // partialWeather는 화면 표시 전용이므로 전달하지 않음.
   // TODO(3단계): 실제 응답을 DiaryCard로 미리보기. 저장 성공 후에만 편지 반영 표시.
   // TODO(3단계): addGeneratedDiary 저장 실패 시 사진을 제외한 재저장 처리.
-  // 현재 단계에서는 API 호출, 생성 일기 저장, 편지 반영을 수행하지 않음.
+  // 현재 단계에서는 날씨 조회 외의 API 호출, 생성 일기 저장, 편지 반영을 수행하지 않음.
   return (
     <>
       <section aria-labelledby="farmer-photo-title">
@@ -99,6 +132,7 @@ export default function FarmerForm({ tree }) {
             <input id="farmer-observed-at" className="input" type="date" value={observedAt}
               onChange={(event) => setObservedAt(event.target.value)} />
           </div>
+          <ObservedWeather result={observedWeather} />
           <div className={styles.field}>
             <label htmlFor="farmer-note">농부 메모</label>
             <input id="farmer-note" className="input" type="text" value={farmerNote}

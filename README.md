@@ -58,6 +58,12 @@ GEMINI_API_KEY=발급받은_API_키
 
 API 키는 서버에서 `process.env.GEMINI_API_KEY`로 불러옵니다.
 
+농부 화면의 날씨를 조회하려면 공공데이터포털에서 [기상청 지상(종관, ASOS) 일자료 조회서비스](https://www.data.go.kr/data/15059093/openapi.do) 인증키를 발급받아 함께 입력합니다. 없으면 화면에 "기상 관측자료 없음"으로 표시됩니다.
+
+```dotenv
+KMA_ASOS_SERVICE_KEY=발급받은_인증키
+```
+
 **③ 개발 서버 실행**
 
 ```powershell

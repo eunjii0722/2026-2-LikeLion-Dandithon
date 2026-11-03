@@ -33,9 +33,9 @@ export async function POST(request) {
         { status: 400 },
       );
     }
-    if (!Number.isSafeInteger(week) || week < 1) {
+    if (!Number.isSafeInteger(week) || week < 1 || week > 53) {
       return Response.json(
-        { error: "week는 1 이상의 정수여야 합니다." },
+        { error: "week는 1~53 사이의 정수여야 합니다." },
         { status: 400 },
       );
     }
@@ -55,14 +55,19 @@ export async function POST(request) {
         { status: 400 },
       );
     }
+    // 관측값이 없으면 null을 명시합니다. 잘못된 값을 null로 바꾸지 않습니다.
     if (
-      !weather || typeof weather !== "object" || Array.isArray(weather) ||
-      !Number.isFinite(weather.tempMax) ||
-      !Number.isFinite(weather.tempMin) ||
-      !Number.isFinite(weather.rainMm)
+      weather !== null && (
+        typeof weather !== "object" || Array.isArray(weather) ||
+        !Number.isFinite(weather.tempMax) ||
+        !Number.isFinite(weather.tempMin) ||
+        !Number.isFinite(weather.rainMm) ||
+        weather.tempMax < weather.tempMin ||
+        weather.rainMm < 0
+      )
     ) {
       return Response.json(
-        { error: "weather의 tempMax, tempMin, rainMm은 숫자여야 합니다." },
+        { error: "weather의 tempMax, tempMin, rainMm은 숫자여야 하며 tempMax는 tempMin 이상, rainMm은 0 이상이어야 합니다. 날씨를 모르면 null을 보내 주세요." },
         { status: 400 },
       );
     }
@@ -136,7 +141,9 @@ export async function POST(request) {
         observations: vision.observations,
         uncertain_points: vision.uncertain_points,
       },
-      weather: { tempMax: weather.tempMax, tempMin: weather.tempMin, rainMm: weather.rainMm },
+      weather: weather === null
+        ? null
+        : { tempMax: weather.tempMax, tempMin: weather.tempMin, rainMm: weather.rainMm },
       farmerNote, farmerConfirmed, observedAt, letters,
     });
 
