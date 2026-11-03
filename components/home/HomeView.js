@@ -9,12 +9,13 @@ import Card from "@/components/common/Card";
 import SeasonCard from "@/components/common/SeasonCard";
 import PhotoPlaceholder from "@/components/common/PhotoPlaceholder";
 import {
-  SEASON_NAMES, STAGE_DESCRIPTIONS, getDiaryHref,
+  SEASON_NAMES, STAGE_DESCRIPTIONS, getDiaryHref, seasonOfWeek,
 } from "@/lib/data";
 import styles from "./Home.module.css";
 
 export default function HomeView({ tree, diary }) {
-  const season = SEASON_NAMES[diary?.season] ? diary.season : "spring";
+  const season = tree ? seasonOfWeek(tree.currentWeek) : "spring";
+  const currentDiary = diary?.week === tree?.currentWeek ? diary : null;
 
   return (
     <div className={`app-shell ${styles.shell}`} data-season={season}>
@@ -30,7 +31,7 @@ export default function HomeView({ tree, diary }) {
       <main className="app-content">
         {tree ? (
           <>
-            <TreeOverview tree={tree} diary={diary} season={season} />
+            <TreeOverview tree={tree} diary={currentDiary} season={season} />
             <DiaryPreview diary={diary} />
             <div className={`btn-row ${styles.actions}`}>
               <Button href="/letter" variant="secondary">편지 쓰기</Button>
@@ -40,7 +41,7 @@ export default function HomeView({ tree, diary }) {
         ) : <EmptyHome />}
       </main>
 
-      {tree && <TabBar currentWeek={diary?.week ?? tree.currentWeek} />}
+      {tree && <TabBar currentWeek={tree.currentWeek} />}
     </div>
   );
 }
@@ -68,7 +69,7 @@ function EmptyHome() {
 
 function TreeOverview({ tree, diary, season }) {
   const stage = diary?.evidence?.growthStage ?? "판단 불가";
-  const currentWeek = Math.max(tree.currentWeek, diary?.week ?? 0);
+  const currentWeek = tree.currentWeek;
   const weeksToHarvest = Math.max(0, tree.harvestWeek - currentWeek);
   const photo = diary?.photo?.url ? diary.photo : { url: tree.photo, type: "tree" };
 
@@ -81,8 +82,11 @@ function TreeOverview({ tree, diary, season }) {
             <h2 id="home-tree-name" className={`tree-name ${styles.noMargin}`}>{tree.name}</h2>
             <p className={`${styles.stageLine} ${styles.noMargin}`}>
               <StageIcon stage={stage} size={22} />
-              <span>{SEASON_NAMES[season]} · {STAGE_DESCRIPTIONS[stage] ?? "성장 기록을 기다리고 있어요"}</span>
+              <span>{SEASON_NAMES[season]} · {currentWeek}주차</span>
             </p>
+            <p className={styles.noMargin}>{diary
+              ? STAGE_DESCRIPTIONS[stage] ?? "성장 단계를 판단하기 어려워요."
+              : "새로운 성장 소식을 기다리고 있어요."}</p>
           </div>
           <div className={styles.harvest}>
             <span>수확까지</span>
@@ -129,8 +133,9 @@ function DiaryPreview({ diary }) {
     <Card href={getDiaryHref(diary)} variant="diary"
       aria-label={`${diary.week}주차 일기, ${diary.title} 읽기`}>
       <div className="card-label-row">
-        <span>이번 주 나무 일기</span><span>{diary.week}주차</span>
+        <span>최근 나무 일기</span><span>{diary.week}주차 · {SEASON_NAMES[diary.season]}</span>
       </div>
+      <TreePhoto key={diary.photo.url ?? "placeholder"} photo={diary.photo} treeName="나무" />
       <h2 className="diary-title">{diary.title}</h2>
       <p className={`diary-text ${styles.diaryPreview}`}>{diary.text}</p>
       <span className="link-more">일기 읽기</span>

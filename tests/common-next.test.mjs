@@ -24,7 +24,7 @@ import { getTree, getDiaries } from '../lib/data.js';
 import { getSelectedTreeId, getAllDiaries } from '../lib/storage.js';
 import Client from './probe-client.js';
 export default function Page() {
-  if (getSelectedTreeId() !== null || getAllDiaries('tree-1').length !== 3) throw new Error('SSR_STORAGE_FAILED');
+  if (getSelectedTreeId() !== null || getAllDiaries('tree-1').length !== 4) throw new Error('SSR_STORAGE_FAILED');
   return <><div>server-tree: {getTree('tree-1').name}</div><div>server-diaries: {getDiaries('tree-1').length}</div><Client /></>;
 }
 `);
@@ -46,7 +46,7 @@ export default function Client() {
     assert.equal(result.status, 0, `${result.error ?? ""}\n${result.stdout}\n${result.stderr}`);
     const html = await readFile(join(fixture, ".next/server/app/index.html"), "utf8");
     assert.match(html, /server-tree:.*홍이/u);
-    assert.match(html, /server-diaries:.*3/u);
+    assert.match(html, /server-diaries:.*4/u);
     assert.match(html, /client-tree:.*홍이/u);
     assert.match(html, /SSR-safe/u);
   } finally {

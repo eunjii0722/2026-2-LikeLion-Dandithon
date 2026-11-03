@@ -26,7 +26,8 @@ const { POST } = await import("../app/api/chat/route.js");
 
 const CURRENT_WEEK = 18;
 const PHOTO = `data:image/jpeg;base64,${"A".repeat(200_000)}`;
-const STATIC_IDS = ["tree-1-w16", "tree-1-w18", "tree-1-w18-special"];
+// This suite deliberately uses week 18 to keep testing future-diary filtering.
+const STATIC_IDS = ["tree-1-w18"];
 const realFetch = globalThis.fetch;
 
 const generated = (over = {}) => ({
@@ -90,7 +91,7 @@ test("generated diaries are sent together with static ones, in week order", asyn
   seedGenerated([generated(), generated({ id: "tree-1-w18", week: 18, title: "교체된 18주차" })]);
   const { recentDiaries } = JSON.parse(await sentBody());
   assert.deepEqual(recentDiaries.map((diary) => [diary.id, diary.week]), [
-    ["tree-1-w16", 16], ["tree-1-w17", 17], ["tree-1-w18", 18], ["tree-1-w18-special", 18],
+    ["tree-1-w17", 17], ["tree-1-w18", 18],
   ]);
   assert.equal(recentDiaries.find((diary) => diary.id === "tree-1-w18").title, "교체된 18주차");
 });
@@ -143,7 +144,7 @@ test("a source can only name a diary that was actually sent", async () => {
   seedGenerated([generated({ id: "tree-1-w20", week: 20 })]);
   const { value } = parseChatPayload(JSON.parse(await sentBody()));
   assert.deepEqual(formatChatResponse({ answer: "답", sourceId: "tree-1-w18" }, value.recentDiaries),
-    { answer: "답", source: "18주차 일기 · 꽃잎이 날리던 한 주" });
+    { answer: "답", source: `18주차 일기 · ${getDiary("tree-1", 18).title}` });
   assert.throws(() => formatChatResponse({ answer: "답", sourceId: "tree-1-w20" }, value.recentDiaries));
 });
 

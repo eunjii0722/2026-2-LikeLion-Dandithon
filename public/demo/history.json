@@ -1,0 +1,80 @@
+{
+  "selectedTreeId": "tree-1",
+  "letters": [
+    {
+      "id": "demo-letter-1",
+      "treeId": "tree-1",
+      "week": 18,
+      "text": "홍아, 사진 속 하얀 꽃들이 참 예쁘다! 올해 너의 소식을 함께 기다릴게.",
+      "createdAt": "2026-05-02T09:00:00+09:00",
+      "usedInDiaryId": "tree-1-w18"
+    },
+    {
+      "id": "demo-letter-2",
+      "treeId": "tree-1",
+      "week": 19,
+      "text": "꽃이 지나간 자리에 작은 사과가 맺히는 모습도 보고 싶어. 다음 사진이 기대돼!",
+      "createdAt": "2026-05-09T09:00:00+09:00",
+      "usedInDiaryId": "tree-1-w21"
+    },
+    {
+      "id": "demo-letter-3",
+      "treeId": "tree-1",
+      "week": 20,
+      "text": "홍아, 작은 열매 소식이 궁금해서 또 편지를 남겨. 서두르지 말고 천천히 만나자.",
+      "createdAt": "2026-05-16T09:00:00+09:00",
+      "usedInDiaryId": "tree-1-w21"
+    },
+    {
+      "id": "demo-letter-4",
+      "treeId": "tree-1",
+      "week": 25,
+      "text": "요즘 열매는 어떤 모습일까? 다음 사진에서 초록 사과를 볼 수 있으면 좋겠어.",
+      "createdAt": "2026-06-20T09:00:00+09:00",
+      "usedInDiaryId": "tree-1-w28"
+    },
+    {
+      "id": "demo-letter-5",
+      "treeId": "tree-1",
+      "week": 27,
+      "text": "잘 자라고 있는지 궁금해. 홍이 소식 읽는 시간이 내 작은 즐거움이야.",
+      "createdAt": "2026-07-04T09:00:00+09:00",
+      "usedInDiaryId": "tree-1-w28"
+    },
+    {
+      "id": "demo-letter-6",
+      "treeId": "tree-1",
+      "week": 32,
+      "text": "초록 사과에 붉은빛이 들 날을 기다리고 있어. 색이 어떻게 달라질지 궁금하다!",
+      "createdAt": "2026-08-08T09:00:00+09:00",
+      "usedInDiaryId": "tree-1-w35"
+    },
+    {
+      "id": "demo-letter-7",
+      "treeId": "tree-1",
+      "week": 34,
+      "text": "홍아, 다음 사진에서는 어떤 색을 보여 줄까? 가을에도 계속 소식 전해 줘.",
+      "createdAt": "2026-08-22T09:00:00+09:00",
+      "usedInDiaryId": "tree-1-w35"
+    }
+  ],
+  "generatedDiaries": [],
+  "savedWords": [
+    {
+      "word": "마이",
+      "meaning": "많이",
+      "week": 18
+    },
+    {
+      "word": "우째",
+      "meaning": "어떻게",
+      "week": 21
+    },
+    {
+      "word": "쪼매",
+      "meaning": "조금",
+      "week": 35
+    }
+  ],
+  "chatHistory": []
+}

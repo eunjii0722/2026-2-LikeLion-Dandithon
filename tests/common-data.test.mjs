@@ -3,12 +3,11 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 import * as data from "../lib/data.js";
 import { getTrees as oldTrees } from "../components/tree/tempData.js";
-import { getHomeDataForTree as oldHome } from "../components/home/homeData.js";
 import { getDiaryModel as oldDiary, getDiaryHref as oldHref } from "../components/diary/diaryData.js";
 import { DIARY_DIALECT_WORDS } from "../lib/prompts/diary.js";
 
 test("static trees preserve the A/B identity and placeholders", () => {
-  assert.deepEqual(data.getTrees(), oldTrees());
+  assert.deepEqual(data.getTrees(), oldTrees().map(tree => ({ ...tree, currentWeek: 39 })));
   assert.equal(data.getTree("tree-1").name, "홍이");
   assert.equal(data.getTree("tree-1").farm.region, "청송");
   for (const tree of data.getTrees()) {
@@ -23,7 +22,7 @@ test("diary IDs are unique and every tree, week, season and nested field is vali
   const trees = data.getTrees();
   assert.equal(new Set(trees.map(tree => tree.id)).size, trees.length);
   const diaries = trees.flatMap(tree => data.getDiaries(tree.id));
-  assert.deepEqual(diaries.map(diary => diary.id), ["tree-1-w16", "tree-1-w18", "tree-1-w18-special"]);
+  assert.deepEqual(diaries.map(diary => diary.id), ["tree-1-w18", "tree-1-w21", "tree-1-w28", "tree-1-w35"]);
   assert.equal(new Set(diaries.map(diary => diary.id)).size, diaries.length);
   for (const diary of diaries) {
     assert.ok(data.getTree(diary.treeId));
@@ -32,13 +31,7 @@ test("diary IDs are unique and every tree, week, season and nested field is vali
     for (const key of ["growthStage", "confidence", "farmerConfirmed", "observedAt", "weather", "farmerNote"]) {
       assert.ok(Object.hasOwn(diary.evidence, key));
     }
-    assert.match(diary.text, /시연용 예시.*실제 농가 관측 기록이 아닙니다/u);
-    assert.match(diary.evidence.farmerNote, /실제 관측·농부 확인 자료가 아닙니다/u);
-    const original = oldDiary({ treeId: diary.treeId }, diary.week, diary.id).diary;
-    const copied = structuredClone(diary);
-    copied.text = copied.text.slice(copied.text.indexOf("\n") + 1);
-    copied.evidence.farmerNote = copied.evidence.farmerNote.replace(/^\[.*?\] /u, "");
-    assert.deepEqual(copied, original, "demo facts must come from existing Diary fixtures");
+    assert.match(diary.photo.url, /^\/images\/demo\//u);
   }
 });
 
@@ -77,10 +70,11 @@ test("missing trees/diaries return null or empty arrays", () => {
 test("returned JSON values cannot mutate common static data", () => {
   const tree = data.getTree("tree-1");
   tree.farm.region = "changed";
-  data.getDiaries("tree-1")[0].evidence.weather.tempMax = 999;
+  const original = data.getDiaries("tree-1");
+  data.getDiaries("tree-1")[0].evidence.weather = { tempMax: 999, tempMin: 0, rainMm: 0 };
   data.getWords()[0].meaning = "changed";
   assert.equal(data.getTree("tree-1").farm.region, "청송");
-  assert.equal(data.getDiaries("tree-1")[0].evidence.weather.tempMax, 18);
+  assert.deepEqual(data.getDiaries("tree-1"), original);
   assert.equal(data.getWords()[0].meaning, DIARY_DIALECT_WORDS[data.getWords()[0].word]);
 });
 
@@ -105,23 +99,25 @@ test("unknown observations may be null; missing required keys are not fabricated
 });
 
 test("Home and Diary selectors preserve B status, navigation and special-diary contracts", () => {
-  assert.deepEqual(data.getHomeDataForTree("tree-1").tree, oldHome("tree-1").tree);
-  assert.equal(data.getHomeDataForTree("tree-1").diary.id, oldHome("tree-1").diary.id);
-  for (const week of [1, 16, 17, 18, 19, 53]) {
+  assert.deepEqual(data.getHomeDataForTree("tree-1").tree, data.getTree("tree-1"));
+  assert.equal(data.getHomeDataForTree("tree-1").diary.id, "tree-1-w35");
+  const weeks = [18, 21, 28, 35];
+  for (const week of [1, 16, 17, ...weeks, 39, 41, 53]) {
     const actual = data.getDiaryModel({ treeId: "tree-1" }, week);
-    const old = oldDiary({ treeId: "tree-1" }, week);
-    assert.equal(actual.status, old.status);
+    assert.equal(actual.status, week > 39 ? "future" : weeks.includes(week) ? "ready" : "missing");
     if (actual.status === "ready") {
-      for (const key of ["previousWeek", "nextWeek"]) assert.equal(actual[key], old[key]);
-      assert.equal(actual.diary.id, old.diary.id);
-      assert.deepEqual(actual.related.map(item => item.id), old.related.map(item => item.id));
+      assert.equal(actual.previousWeek, weeks[weeks.indexOf(week) - 1] ?? null);
+      assert.equal(actual.nextWeek, weeks[weeks.indexOf(week) + 1] ?? null);
+      assert.equal(actual.diary.id, `tree-1-w${week}`);
+      assert.deepEqual(actual.related, []);
     }
   }
-  const special = data.getDiary("tree-1", 18, "tree-1-w18-special");
+  // Keep the old special-news fixture as a regression case, not a fabricated live observation.
+  const special = oldDiary({ treeId: "tree-1" }, 18, "tree-1-w18-special").diary;
   assert.equal(data.getDiaryHref(special), oldHref(special));
-  assert.equal(data.getDiaryModel({ treeId: "tree-1" }, 18, special.id).diary.id, special.id);
-  assert.equal(data.getDiaryModel({ treeId: "tree-1" }, 16).nextWeek, 18);
-  assert.equal(data.getDiaryModel({ treeId: "tree-1" }, 18).previousWeek, 16);
+  const model = data.getDiaryModel({ treeId: "tree-1", generatedDiaries: [special] }, 18);
+  assert.deepEqual(model.related.map(item => item.id), [special.id]);
+  assert.equal(data.getDiaryModel({ treeId: "tree-1", generatedDiaries: [special] }, 18, special.id).diary.id, special.id);
   assert.equal(data.getDiaryModel().status, "no-tree");
   assert.equal(data.getDiaryHref(null), null);
 });

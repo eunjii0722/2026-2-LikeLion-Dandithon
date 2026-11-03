@@ -36,13 +36,13 @@ export default function DiaryClient({ week, diaryId }) {
       </header>
       <main className="app-content">
         {model.status === "ready" ? <DiaryDetail key={model.diary.id} model={model} savedWords={stored.savedWords} />
-          : <DiaryState status={model.status} currentWeek={model.tree?.currentWeek} />}
+          : <DiaryState status={model.status} previousDiary={model.previousDiary} />}
       </main>
     </div>
   );
 }
 
-function DiaryState({ status, currentWeek }) {
+function DiaryState({ status, previousDiary }) {
   if (status === "loading") return <p className="status-message" role="status">일기를 불러오는 중...</p>;
   const noTree = status === "no-tree";
   return (
@@ -51,9 +51,11 @@ function DiaryState({ status, currentWeek }) {
         : status === "future" ? "아직 열리지 않은 일기예요" : "이 주의 일기가 아직 없어요"}</h1>
       <p className="diary-text">{noTree ? "나무를 고르면 성장 일기를 만날 수 있어요."
         : "소식이 도착한 주의 일기부터 읽어 보세요."}</p>
-      <Button href={noTree ? "/trees" : `/diary/${currentWeek}`}>
-        {noTree ? "나무 고르러 가기" : "이번 주 일기 보기"}
-      </Button>
+      <div className="btn-row">
+        {noTree ? <Button href="/trees">나무 고르러 가기</Button>
+          : previousDiary && <Button href={getDiaryHref(previousDiary)}>지난 일기 보기</Button>}
+        <Button href="/timeline" variant="secondary">타임라인으로 돌아가기</Button>
+      </div>
     </section>
   );
 }

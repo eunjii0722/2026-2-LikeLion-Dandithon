@@ -1,55 +1,20 @@
 [
   {
-    "id": "tree-1-w16",
-    "treeId": "tree-1",
-    "week": 16,
-    "season": "spring",
-    "title": "분홍 봉오리가 맺힌 한 주",
-    "text": "[시연용 예시 — 실제 농가 관측 기록이 아닙니다.]\n분홍 봉오리가 맺혔니더. 농부 아재가 단디 살펴보고 갔어요.",
-    "isSpecial": false,
-    "dialectWords": [
-      {
-        "word": "단디",
-        "meaning": "단단히, 꼼꼼히"
-      }
-    ],
-    "photo": {
-      "url": null,
-      "type": "tree"
-    },
-    "evidence": {
-      "growthStage": "개화",
-      "confidence": "보통",
-      "farmerConfirmed": true,
-      "observedAt": "2026-04-18",
-      "weather": {
-        "tempMax": 18,
-        "tempMin": 6,
-        "rainMm": 0
-      },
-      "farmerNote": "[시연용 예시 — 실제 관측·농부 확인 자료가 아닙니다.] 화면 확인용 예시: 나무에 분홍 봉오리가 맺혔어요."
-    }
-  },
-  {
     "id": "tree-1-w18",
     "treeId": "tree-1",
     "week": 18,
     "season": "spring",
-    "title": "꽃잎이 날리던 한 주",
-    "text": "[시연용 예시 — 실제 농가 관측 기록이 아닙니다.]\n꽃잎이 바람에 날리는 한 주였니더. 벌들이 쪼매 바빴어요.\n농부 아재가 과수원을 단디 둘러보고 갔어요. 이번 주는 과수원 전체 모습을 담았니더.",
+    "title": "과수원 전체에 핀 하얀 꽃들",
+    "text": "이번 기록은 과수원 전체 사진이라, 내 모습을 직접 확인한 것이 아니라 과수원 전체 기준의 관찰인데 나무 전체에 하얀 꽃들과 녹색 잎들이 피어 있네. 농부 확인 전 단계라 개별 나무의 상태나 수확 적기가 따로 기록되지는 않았어. 사진 속 하얀 꽃들이 예쁘다며 나의 소식을 기다려 준다는 편지가 마이 고맙데이. 이렇게 조용히 인사를 전해본다.",
     "isSpecial": false,
     "dialectWords": [
       {
-        "word": "쪼매",
-        "meaning": "조금"
-      },
-      {
-        "word": "단디",
-        "meaning": "단단히, 꼼꼼히"
+        "word": "마이",
+        "meaning": "많이"
       }
     ],
     "photo": {
-      "url": null,
+      "url": "/images/demo/spring-flowering.jpg",
       "type": "orchard"
     },
     "evidence": {
@@ -57,38 +22,97 @@
       "confidence": "높음",
       "farmerConfirmed": false,
       "observedAt": "2026-05-02",
-      "weather": {
-        "tempMax": 22,
-        "tempMin": 8,
-        "rainMm": 0
-      },
-      "farmerNote": "[시연용 예시 — 실제 관측·농부 확인 자료가 아닙니다.] 화면 확인용 예시: 과수원에 꽃이 피었고 벌이 오가는 모습이 보여요."
+      "weather": null,
+      "farmerNote": "사진에 주변 나무도 함께 담겨 있습니다. 개별 분양 나무의 상태나 실제 수확 적기를 확인한 기록은 없습니다."
     }
   },
   {
-    "id": "tree-1-w18-special",
+    "id": "tree-1-w21",
     "treeId": "tree-1",
-    "week": 18,
+    "week": 21,
     "season": "spring",
-    "title": "갑자기 우박이 쏟아졌어요",
-    "text": "[시연용 예시 — 실제 농가 관측 기록이 아닙니다.]\n오늘 과수원에 우박이 내렸니더. 농부 아재가 과수원을 둘러봤다고 소식을 남겼어요.",
-    "isSpecial": true,
-    "dialectWords": [],
+    "title": "과수원 전체의 초록 잎과 붉은빛 열매 풍경",
+    "text": "이번 기록은 과수원 전체 사진이라, 그 속에서 내 모습만 따로 짚어 말하기는 어렵네. 초록색 바탕에 붉은빛이 도는 작은 열매들이 나뭇가지와 잎 사이에 무성하게 맺혀 있는 모습이 보이는데, 지금은 농부 확인 전 상태야. 다만 열매가 나뭇잎과 그림자에 일부 가려져 있어서 정확한 전체 상태를 파악하기는 조금 어렵다. 작은 사과가 맺히는 모습이 궁금하다며 천천히 만나자고 건네준 편지를 읽으니 우째 이리 반가운지 모르겠네. 다음 사진을 기다리며 따뜻한 마음을 보내 준 것에 고마움을 전한다.",
+    "isSpecial": false,
+    "dialectWords": [
+      {
+        "word": "우째",
+        "meaning": "어떻게"
+      }
+    ],
     "photo": {
-      "url": null,
+      "url": "/images/demo/spring-fruit-set.jpg",
       "type": "orchard"
     },
     "evidence": {
-      "growthStage": "판단 불가",
-      "confidence": "낮음",
-      "farmerConfirmed": true,
-      "observedAt": "2026-05-02",
+      "growthStage": "착색",
+      "confidence": "보통",
+      "farmerConfirmed": false,
+      "observedAt": "2026-05-23",
       "weather": {
-        "tempMax": 22,
-        "tempMin": 8,
-        "rainMm": 6
+        "tempMax": 20.4,
+        "tempMin": 12.2,
+        "rainMm": 0
       },
-      "farmerNote": "[시연용 예시 — 실제 관측·농부 확인 자료가 아닙니다.] 화면 확인용 예시: 우박이 내린 뒤 과수원을 둘러봤어요. 피해 여부는 아직 확인 중이에요."
+      "farmerNote": "사진에 주변 나무도 함께 담겨 있습니다. 개별 분양 나무의 상태나 실제 수확 적기를 확인한 기록은 없습니다."
+    }
+  },
+  {
+    "id": "tree-1-w28",
+    "treeId": "tree-1",
+    "week": 28,
+    "season": "summer",
+    "title": "과수원 전체의 풍경 속에서",
+    "text": "이번 기록은 과수원 전체 사진이라, 그 속에서 내 모습만 따로 짚어 말하기는 어렵다. 농부 확인 전 상태이며, 농부님이 사진에 주변 나무도 함께 담겨 있고 개별 분양 나무의 상태나 실제 수확 적기를 확인한 기록은 없다고 적어 두었다. 사진 속에는 초록색 열매가 여러 개 달려 있고 잎이 무성하며 나무 기둥 구조물이 세워져 있네. 초록 사과를 보고 싶어 하고 소식 읽는 시간이 작은 즐거움이라며 궁금해해 주니 우째 이리 반갑데이. 따뜻한 마음을 전해 들으며 조용히 기록을 넘겨본다.",
+    "isSpecial": false,
+    "dialectWords": [
+      {
+        "word": "우째",
+        "meaning": "어떻게"
+      }
+    ],
+    "photo": {
+      "url": "/images/demo/summer-fruit-growth.jpg",
+      "type": "orchard"
+    },
+    "evidence": {
+      "growthStage": "비대",
+      "confidence": "높음",
+      "farmerConfirmed": false,
+      "observedAt": "2026-07-11",
+      "weather": null,
+      "farmerNote": "사진에 주변 나무도 함께 담겨 있습니다. 개별 분양 나무의 상태나 실제 수확 적기를 확인한 기록은 없습니다."
+    }
+  },
+  {
+    "id": "tree-1-w35",
+    "treeId": "tree-1",
+    "week": 35,
+    "season": "summer",
+    "title": "초록과 붉음이 어우러진 과수원 풍경",
+    "text": "이번 기록은 과수원 전체 사진이라, 그 속에서 내 모습만 따로 짚어 말하기는 어렵다. 사진 속에는 푸른 잎과 함께 붉은빛이 섞인 열매들이 보이지만, 아직 농부 확인 전이라 세세한 상태까지 단정할 수는 없다. 초록 사과에 붉은빛이 어떻게 들지 궁금해하며 기다려 주는 마음을 보니 참 고맙데이. 앞으로 어떤 색을 보여 줄지 기다리는 동안 마음이 쪼매 설렌다. 차분하게 가을을 맞아가는 풍경을 조용히 담아본다.",
+    "isSpecial": false,
+    "dialectWords": [
+      {
+        "word": "쪼매",
+        "meaning": "조금"
+      }
+    ],
+    "photo": {
+      "url": "/images/demo/summer-fruit-coloring.jpg",
+      "type": "orchard"
+    },
+    "evidence": {
+      "growthStage": "착색",
+      "confidence": "보통",
+      "farmerConfirmed": false,
+      "observedAt": "2026-08-29",
+      "weather": {
+        "tempMax": 30.4,
+        "tempMin": 23,
+        "rainMm": 28.5
+      },
+      "farmerNote": "사진에 주변 나무도 함께 담겨 있습니다. 개별 분양 나무의 상태나 실제 수확 적기를 확인한 기록은 없습니다."
     }
   }
 ]
