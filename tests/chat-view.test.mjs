@@ -26,7 +26,8 @@ const { POST } = await import("../app/api/chat/route.js");
 
 const CURRENT_WEEK = 18;
 const PHOTO = `data:image/jpeg;base64,${"A".repeat(200_000)}`;
-const STATIC_IDS = ["tree-1-w16", "tree-1-w18", "tree-1-w18-special"];
+// This suite deliberately uses week 18 to keep testing future-diary filtering.
+const STATIC_IDS = ["tree-1-w18"];
 const realFetch = globalThis.fetch;
 
 const generated = (over = {}) => ({
@@ -79,18 +80,18 @@ test("history keeps the existing field priority and the last 10 messages", async
   assert.deepEqual(recent.history.map((item) => item.content), messages.slice(-10).map((item) => item.text));
 });
 
-test("static diaries reach the API when nothing has been generated", async () => {
+test("new users never send static demo diaries to the API", async () => {
   const { recentDiaries } = JSON.parse(await sentBody());
-  assert.deepEqual(recentDiaries.map((diary) => diary.id), STATIC_IDS);
+  assert.deepEqual(recentDiaries.map((diary) => diary.id), []);
   for (const diary of recentDiaries) assert.deepEqual(Object.keys(diary), ["id", "treeId", "week", "title", "text"]);
-  assert.deepEqual(parseChatPayload(JSON.parse(await sentBody())).value.recentDiaries.map((diary) => diary.id), STATIC_IDS);
+  assert.deepEqual(parseChatPayload(JSON.parse(await sentBody())).value.recentDiaries.map((diary) => diary.id), []);
 });
 
 test("generated diaries are sent together with static ones, in week order", async () => {
   seedGenerated([generated(), generated({ id: "tree-1-w18", week: 18, title: "교체된 18주차" })]);
   const { recentDiaries } = JSON.parse(await sentBody());
   assert.deepEqual(recentDiaries.map((diary) => [diary.id, diary.week]), [
-    ["tree-1-w16", 16], ["tree-1-w17", 17], ["tree-1-w18", 18], ["tree-1-w18-special", 18],
+    ["tree-1-w17", 17], ["tree-1-w18", 18],
   ]);
   assert.equal(recentDiaries.find((diary) => diary.id === "tree-1-w18").title, "교체된 18주차");
 });
@@ -140,11 +141,31 @@ test("the newest diaries survive when there are more than the API uses", () => {
 });
 
 test("a source can only name a diary that was actually sent", async () => {
-  seedGenerated([generated({ id: "tree-1-w20", week: 20 })]);
+  seedGenerated([getDiary("tree-1", 18), generated({ id: "tree-1-w20", week: 20 })]);
   const { value } = parseChatPayload(JSON.parse(await sentBody()));
   assert.deepEqual(formatChatResponse({ answer: "답", sourceId: "tree-1-w18" }, value.recentDiaries),
-    { answer: "답", source: "18주차 일기 · 꽃잎이 날리던 한 주" });
+    { answer: "답", source: `18주차 일기 · ${getDiary("tree-1", 18).title}` });
   assert.throws(() => formatChatResponse({ answer: "답", sourceId: "tree-1-w20" }, value.recentDiaries));
+});
+
+test("the route reports server and Gemini timing only in development, without any content", async () => {
+  const post = () => POST(new Request("http://localhost/api/chat", { method: "POST", body: JSON.stringify({ treeId: "tree-1", question: "비밀 질문" }) }));
+  const realEnv = process.env.NODE_ENV;
+  const realDebug = console.debug;
+  const logs = [];
+  console.debug = (...args) => logs.push(JSON.stringify(args));
+  try {
+    process.env.NODE_ENV = "development";
+    const header = (await post()).headers.get("server-timing");
+    assert.match(header, /^total;dur=[\d.]+, gemini;dur=[\d.]+$/);
+    assert.ok(logs.length > 0);
+    assert.ok(!logs.join().includes("비밀 질문"));
+    process.env.NODE_ENV = "production";
+    assert.equal((await post()).headers.get("server-timing"), null);
+  } finally {
+    process.env.NODE_ENV = realEnv;
+    console.debug = realDebug;
+  }
 });
 
 test("requestChat reports API failures so the screen can show its error", async () => {
@@ -152,9 +173,9 @@ test("requestChat reports API failures so the screen can show its error", async 
   globalThis.fetch = async () => Response.json({ error: "서버 오류" }, { status: 500 });
   await assert.rejects(call, /서버 오류/u);
   globalThis.fetch = async () => new Response("<html>", { status: 502 });
-  await assert.rejects(call, /대화 요청에 실패했어요/u);
+  await assert.rejects(call, /AI가 답변을 만들지 못했어요/u);
   globalThis.fetch = async () => Response.json({ source: null });
   await assert.rejects(call, /대화 요청에 실패했어요/u);
   globalThis.fetch = async () => { throw new TypeError("fetch failed"); };
-  await assert.rejects(call, TypeError);
+  await assert.rejects(call, /네트워크/u);
 });

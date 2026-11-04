@@ -1,0 +1,498 @@
+[
+  {
+    "treeId": "tree-1",
+    "week": 18,
+    "observedAt": "2026-05-02",
+    "expectedStage": "개화",
+    "model": "gemini-3.5-flash-lite",
+    "photo": {
+      "url": "/images/demo/spring-flowering.jpg",
+      "sha256": "77b732eda50a95c6ac4de0e21829f1116435585fdad0b44ec3991726d8b3ef66",
+      "bytes": 1040339,
+      "mimeType": "image/jpeg",
+      "scope": "orchard"
+    },
+    "visionAttempts": [
+      {
+        "calledAt": "2026-11-03T06:55:42.190Z",
+        "status": 200,
+        "response": {
+          "growth_stage": "개화",
+          "flowers_visible": true,
+          "fruit_visible": false,
+          "fruit_color": null,
+          "observations": [
+            "나무 전체에 흰색과 연한 분홍빛을 띤 꽃들이 활짝 피어 있음",
+            "녹색 잎들이 부분적으로 함께 관찰됨",
+            "사진 내에 열매는 확인되지 않음"
+          ],
+          "confidence": "높음",
+          "uncertain_points": []
+        }
+      }
+    ],
+    "weatherAttempts": [
+      {
+        "calledAt": "2026-11-03T06:55:46.474Z",
+        "status": 200,
+        "response": {
+          "date": "2026-05-02",
+          "weather": null,
+          "partialWeather": {
+            "tempMax": 26,
+            "tempMin": 7,
+            "rainMm": null
+          },
+          "reason": "rain_missing",
+          "message": "강수량 관측값이 비어 있어요.",
+          "source": {
+            "provider": "기상청",
+            "network": "ASOS",
+            "stationId": "276",
+            "stationName": "청송군"
+          }
+        }
+      }
+    ],
+    "diaryAttempts": [
+      {
+        "calledAt": "2026-11-03T06:55:47.035Z",
+        "status": 200,
+        "response": {
+          "id": "tree-1-w18",
+          "treeId": "tree-1",
+          "week": 18,
+          "season": "spring",
+          "title": "과수원 전체에 핀 하얀 꽃들",
+          "text": "이번 기록은 과수원 전체 사진이라, 내 모습을 직접 확인한 것이 아니라 과수원 전체 기준의 관찰인데 나무 전체에 하얀 꽃들과 녹색 잎들이 피어 있네. 농부 확인 전 단계라 개별 나무의 상태나 수확 적기가 따로 기록되지는 않았어. 사진 속 하얀 꽃들이 예쁘다며 나의 소식을 기다려 준다는 편지가 마이 고맙데이. 이렇게 조용히 인사를 전해본다.",
+          "isSpecial": false,
+          "dialectWords": [
+            {
+              "word": "마이",
+              "meaning": "많이"
+            }
+          ],
+          "photo": {
+            "url": null,
+            "type": "orchard"
+          },
+          "evidence": {
+            "growthStage": "개화",
+            "confidence": "높음",
+            "farmerConfirmed": false,
+            "observedAt": "2026-05-02",
+            "weather": null,
+            "farmerNote": "사진에 주변 나무도 함께 담겨 있습니다. 개별 분양 나무의 상태나 실제 수확 적기를 확인한 기록은 없습니다."
+          }
+        }
+      }
+    ],
+    "diaryRequest": {
+      "treeId": "tree-1",
+      "week": 18,
+      "photoType": "orchard",
+      "vision": {
+        "growth_stage": "개화",
+        "flowers_visible": true,
+        "fruit_visible": false,
+        "fruit_color": null,
+        "observations": [
+          "나무 전체에 흰색과 연한 분홍빛을 띤 꽃들이 활짝 피어 있음",
+          "녹색 잎들이 부분적으로 함께 관찰됨",
+          "사진 내에 열매는 확인되지 않음"
+        ],
+        "confidence": "높음",
+        "uncertain_points": []
+      },
+      "weather": null,
+      "farmerNote": "사진에 주변 나무도 함께 담겨 있습니다. 개별 분양 나무의 상태나 실제 수확 적기를 확인한 기록은 없습니다.",
+      "farmerConfirmed": false,
+      "observedAt": "2026-05-02",
+      "letters": [
+        "홍아, 사진 속 하얀 꽃들이 참 예쁘다! 올해 너의 소식을 함께 기다릴게."
+      ]
+    },
+    "letterIds": [
+      "demo-letter-1"
+    ]
+  },
+  {
+    "treeId": "tree-1",
+    "week": 21,
+    "observedAt": "2026-05-23",
+    "expectedStage": "착과",
+    "model": "gemini-3.5-flash-lite",
+    "photo": {
+      "url": "/images/demo/spring-fruit-set.jpg",
+      "sha256": "d886cd8aef80dd8aee8a8553f292b907a0801d7fd7230c7e0f49e324888cac91",
+      "bytes": 867651,
+      "mimeType": "image/jpeg",
+      "scope": "orchard"
+    },
+    "visionAttempts": [
+      {
+        "calledAt": "2026-11-03T06:55:55.606Z",
+        "status": 200,
+        "response": {
+          "growth_stage": "착색",
+          "flowers_visible": false,
+          "fruit_visible": true,
+          "fruit_color": "일부 붉음",
+          "observations": [
+            "나무에 잎이 무성하게 자라 있음",
+            "초록색 바탕에 붉은빛이 도는 작은 열매들이 다수 관찰됨",
+            "열매들이 나뭇가지와 잎 사이에 맺혀 있음"
+          ],
+          "confidence": "보통",
+          "uncertain_points": [
+            "열매가 나뭇잎과 그림자에 일부 가려져 있어 정확한 전체 상태를 파악하기 어려움"
+          ]
+        }
+      }
+    ],
+    "weatherAttempts": [
+      {
+        "calledAt": "2026-11-03T06:55:57.788Z",
+        "status": 200,
+        "response": {
+          "date": "2026-05-23",
+          "weather": {
+            "tempMax": 20.4,
+            "tempMin": 12.2,
+            "rainMm": 0
+          },
+          "reason": null,
+          "source": {
+            "provider": "기상청",
+            "network": "ASOS",
+            "stationId": "276",
+            "stationName": "청송군"
+          }
+        }
+      }
+    ],
+    "diaryAttempts": [
+      {
+        "calledAt": "2026-11-03T06:55:58.084Z",
+        "status": 200,
+        "response": {
+          "id": "tree-1-w21",
+          "treeId": "tree-1",
+          "week": 21,
+          "season": "spring",
+          "title": "과수원 전체의 초록 잎과 붉은빛 열매 풍경",
+          "text": "이번 기록은 과수원 전체 사진이라, 그 속에서 내 모습만 따로 짚어 말하기는 어렵네. 초록색 바탕에 붉은빛이 도는 작은 열매들이 나뭇가지와 잎 사이에 무성하게 맺혀 있는 모습이 보이는데, 지금은 농부 확인 전 상태야. 다만 열매가 나뭇잎과 그림자에 일부 가려져 있어서 정확한 전체 상태를 파악하기는 조금 어렵다. 작은 사과가 맺히는 모습이 궁금하다며 천천히 만나자고 건네준 편지를 읽으니 우째 이리 반가운지 모르겠네. 다음 사진을 기다리며 따뜻한 마음을 보내 준 것에 고마움을 전한다.",
+          "isSpecial": false,
+          "dialectWords": [
+            {
+              "word": "우째",
+              "meaning": "어떻게"
+            }
+          ],
+          "photo": {
+            "url": null,
+            "type": "orchard"
+          },
+          "evidence": {
+            "growthStage": "착색",
+            "confidence": "보통",
+            "farmerConfirmed": false,
+            "observedAt": "2026-05-23",
+            "weather": {
+              "tempMax": 20.4,
+              "tempMin": 12.2,
+              "rainMm": 0
+            },
+            "farmerNote": "사진에 주변 나무도 함께 담겨 있습니다. 개별 분양 나무의 상태나 실제 수확 적기를 확인한 기록은 없습니다."
+          }
+        }
+      }
+    ],
+    "diaryRequest": {
+      "treeId": "tree-1",
+      "week": 21,
+      "photoType": "orchard",
+      "vision": {
+        "growth_stage": "착색",
+        "flowers_visible": false,
+        "fruit_visible": true,
+        "fruit_color": "일부 붉음",
+        "observations": [
+          "나무에 잎이 무성하게 자라 있음",
+          "초록색 바탕에 붉은빛이 도는 작은 열매들이 다수 관찰됨",
+          "열매들이 나뭇가지와 잎 사이에 맺혀 있음"
+        ],
+        "confidence": "보통",
+        "uncertain_points": [
+          "열매가 나뭇잎과 그림자에 일부 가려져 있어 정확한 전체 상태를 파악하기 어려움"
+        ]
+      },
+      "weather": {
+        "tempMax": 20.4,
+        "tempMin": 12.2,
+        "rainMm": 0
+      },
+      "farmerNote": "사진에 주변 나무도 함께 담겨 있습니다. 개별 분양 나무의 상태나 실제 수확 적기를 확인한 기록은 없습니다.",
+      "farmerConfirmed": false,
+      "observedAt": "2026-05-23",
+      "letters": [
+        "꽃이 지나간 자리에 작은 사과가 맺히는 모습도 보고 싶어. 다음 사진이 기대돼!",
+        "홍아, 작은 열매 소식이 궁금해서 또 편지를 남겨. 서두르지 말고 천천히 만나자."
+      ]
+    },
+    "letterIds": [
+      "demo-letter-2",
+      "demo-letter-3"
+    ]
+  },
+  {
+    "treeId": "tree-1",
+    "week": 28,
+    "observedAt": "2026-07-11",
+    "expectedStage": "비대",
+    "model": "gemini-3.5-flash-lite",
+    "photo": {
+      "url": "/images/demo/summer-fruit-growth.jpg",
+      "sha256": "6e00ef96913a6769a7bce166aa812fa5857ba17fd5bfd423668fd40b2255ca76",
+      "bytes": 719080,
+      "mimeType": "image/jpeg",
+      "scope": "orchard"
+    },
+    "visionAttempts": [
+      {
+        "calledAt": "2026-11-03T06:56:06.744Z",
+        "status": 200,
+        "response": {
+          "growth_stage": "비대",
+          "flowers_visible": false,
+          "fruit_visible": true,
+          "fruit_color": "초록",
+          "observations": [
+            "나무에 초록색 열매가 여러 개 달려 있음",
+            "초록색 잎이 무성하게 자라 있음",
+            "나무 옆에 나무 기둥 구조물이 세워져 있음"
+          ],
+          "confidence": "높음",
+          "uncertain_points": []
+        }
+      }
+    ],
+    "weatherAttempts": [
+      {
+        "calledAt": "2026-11-03T06:56:09.078Z",
+        "status": 200,
+        "response": {
+          "date": "2026-07-11",
+          "weather": null,
+          "partialWeather": {
+            "tempMax": 34.9,
+            "tempMin": 21.3,
+            "rainMm": null
+          },
+          "reason": "rain_missing",
+          "message": "강수량 관측값이 비어 있어요.",
+          "source": {
+            "provider": "기상청",
+            "network": "ASOS",
+            "stationId": "276",
+            "stationName": "청송군"
+          }
+        }
+      }
+    ],
+    "diaryAttempts": [
+      {
+        "calledAt": "2026-11-03T06:56:09.312Z",
+        "status": 200,
+        "response": {
+          "id": "tree-1-w28",
+          "treeId": "tree-1",
+          "week": 28,
+          "season": "summer",
+          "title": "과수원 전체의 풍경 속에서",
+          "text": "이번 기록은 과수원 전체 사진이라, 그 속에서 내 모습만 따로 짚어 말하기는 어렵다. 농부 확인 전 상태이며, 농부님이 사진에 주변 나무도 함께 담겨 있고 개별 분양 나무의 상태나 실제 수확 적기를 확인한 기록은 없다고 적어 두었다. 사진 속에는 초록색 열매가 여러 개 달려 있고 잎이 무성하며 나무 기둥 구조물이 세워져 있네. 초록 사과를 보고 싶어 하고 소식 읽는 시간이 작은 즐거움이라며 궁금해해 주니 우째 이리 반갑데이. 따뜻한 마음을 전해 들으며 조용히 기록을 넘겨본다.",
+          "isSpecial": false,
+          "dialectWords": [
+            {
+              "word": "우째",
+              "meaning": "어떻게"
+            }
+          ],
+          "photo": {
+            "url": null,
+            "type": "orchard"
+          },
+          "evidence": {
+            "growthStage": "비대",
+            "confidence": "높음",
+            "farmerConfirmed": false,
+            "observedAt": "2026-07-11",
+            "weather": null,
+            "farmerNote": "사진에 주변 나무도 함께 담겨 있습니다. 개별 분양 나무의 상태나 실제 수확 적기를 확인한 기록은 없습니다."
+          }
+        }
+      }
+    ],
+    "diaryRequest": {
+      "treeId": "tree-1",
+      "week": 28,
+      "photoType": "orchard",
+      "vision": {
+        "growth_stage": "비대",
+        "flowers_visible": false,
+        "fruit_visible": true,
+        "fruit_color": "초록",
+        "observations": [
+          "나무에 초록색 열매가 여러 개 달려 있음",
+          "초록색 잎이 무성하게 자라 있음",
+          "나무 옆에 나무 기둥 구조물이 세워져 있음"
+        ],
+        "confidence": "높음",
+        "uncertain_points": []
+      },
+      "weather": null,
+      "farmerNote": "사진에 주변 나무도 함께 담겨 있습니다. 개별 분양 나무의 상태나 실제 수확 적기를 확인한 기록은 없습니다.",
+      "farmerConfirmed": false,
+      "observedAt": "2026-07-11",
+      "letters": [
+        "요즘 열매는 어떤 모습일까? 다음 사진에서 초록 사과를 볼 수 있으면 좋겠어.",
+        "잘 자라고 있는지 궁금해. 홍이 소식 읽는 시간이 내 작은 즐거움이야."
+      ]
+    },
+    "letterIds": [
+      "demo-letter-4",
+      "demo-letter-5"
+    ]
+  },
+  {
+    "treeId": "tree-1",
+    "week": 35,
+    "observedAt": "2026-08-29",
+    "expectedStage": "착색",
+    "model": "gemini-3.5-flash-lite",
+    "photo": {
+      "url": "/images/demo/summer-fruit-coloring.jpg",
+      "sha256": "01e6922270b9b570c26071b7920d796dd31ae918c5f7ed0cb20eefc8fb7ae311",
+      "bytes": 1055894,
+      "mimeType": "image/jpeg",
+      "scope": "orchard"
+    },
+    "visionAttempts": [
+      {
+        "calledAt": "2026-11-03T06:56:17.102Z",
+        "status": 200,
+        "response": {
+          "growth_stage": "착색",
+          "flowers_visible": false,
+          "fruit_visible": true,
+          "fruit_color": "일부 붉음",
+          "observations": [
+            "나무에 붉은색과 초록색이 섞인 열매가 매달려 있음",
+            "푸른 잎이 무성하게 자라 있음",
+            "지지대가 설치된 과수원 환경에서 촬영됨"
+          ],
+          "confidence": "보통",
+          "uncertain_points": [
+            "빛 반사로 인해 일부 열매의 정확한 색상 확인이 어려움",
+            "열매의 전체 수나 상태를 나무 전체에서 파악하기에 시야가 일부 제한됨"
+          ]
+        }
+      }
+    ],
+    "weatherAttempts": [
+      {
+        "calledAt": "2026-11-03T06:56:19.450Z",
+        "status": 200,
+        "response": {
+          "date": "2026-08-29",
+          "weather": {
+            "tempMax": 30.4,
+            "tempMin": 23,
+            "rainMm": 28.5
+          },
+          "reason": null,
+          "source": {
+            "provider": "기상청",
+            "network": "ASOS",
+            "stationId": "276",
+            "stationName": "청송군"
+          }
+        }
+      }
+    ],
+    "diaryAttempts": [
+      {
+        "calledAt": "2026-11-03T06:56:20.798Z",
+        "status": 200,
+        "response": {
+          "id": "tree-1-w35",
+          "treeId": "tree-1",
+          "week": 35,
+          "season": "summer",
+          "title": "초록과 붉음이 어우러진 과수원 풍경",
+          "text": "이번 기록은 과수원 전체 사진이라, 그 속에서 내 모습만 따로 짚어 말하기는 어렵다. 사진 속에는 푸른 잎과 함께 붉은빛이 섞인 열매들이 보이지만, 아직 농부 확인 전이라 세세한 상태까지 단정할 수는 없다. 초록 사과에 붉은빛이 어떻게 들지 궁금해하며 기다려 주는 마음을 보니 참 고맙데이. 앞으로 어떤 색을 보여 줄지 기다리는 동안 마음이 쪼매 설렌다. 차분하게 가을을 맞아가는 풍경을 조용히 담아본다.",
+          "isSpecial": false,
+          "dialectWords": [
+            {
+              "word": "쪼매",
+              "meaning": "조금"
+            }
+          ],
+          "photo": {
+            "url": null,
+            "type": "orchard"
+          },
+          "evidence": {
+            "growthStage": "착색",
+            "confidence": "보통",
+            "farmerConfirmed": false,
+            "observedAt": "2026-08-29",
+            "weather": {
+              "tempMax": 30.4,
+              "tempMin": 23,
+              "rainMm": 28.5
+            },
+            "farmerNote": "사진에 주변 나무도 함께 담겨 있습니다. 개별 분양 나무의 상태나 실제 수확 적기를 확인한 기록은 없습니다."
+          }
+        }
+      }
+    ],
+    "diaryRequest": {
+      "treeId": "tree-1",
+      "week": 35,
+      "photoType": "orchard",
+      "vision": {
+        "growth_stage": "착색",
+        "flowers_visible": false,
+        "fruit_visible": true,
+        "fruit_color": "일부 붉음",
+        "observations": [
+          "나무에 붉은색과 초록색이 섞인 열매가 매달려 있음",
+          "푸른 잎이 무성하게 자라 있음",
+          "지지대가 설치된 과수원 환경에서 촬영됨"
+        ],
+        "confidence": "보통",
+        "uncertain_points": [
+          "빛 반사로 인해 일부 열매의 정확한 색상 확인이 어려움",
+          "열매의 전체 수나 상태를 나무 전체에서 파악하기에 시야가 일부 제한됨"
+        ]
+      },
+      "weather": {
+        "tempMax": 30.4,
+        "tempMin": 23,
+        "rainMm": 28.5
+      },
+      "farmerNote": "사진에 주변 나무도 함께 담겨 있습니다. 개별 분양 나무의 상태나 실제 수확 적기를 확인한 기록은 없습니다.",
+      "farmerConfirmed": false,
+      "observedAt": "2026-08-29",
+      "letters": [
+        "초록 사과에 붉은빛이 들 날을 기다리고 있어. 색이 어떻게 달라질지 궁금하다!",
+        "홍아, 다음 사진에서는 어떤 색을 보여 줄까? 가을에도 계속 소식 전해 줘."
+      ]
+    },
+    "letterIds": [
+      "demo-letter-6",
+      "demo-letter-7"
+    ]
+  }
+]

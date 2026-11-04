@@ -35,7 +35,7 @@ async function TreeProfile({ params }) {
     <>
       <div className="photo-frame">
         {tree.photo ? (
-          <img src={tree.photo} alt={`${tree.name} 사진`} />
+          <img src={tree.photo} alt={`${tree.name} 사진`} style={{ objectPosition: "center 30%" }} />
         ) : (
           <PhotoPlaceholder>[{tree.name} 사진]</PhotoPlaceholder>
         )}

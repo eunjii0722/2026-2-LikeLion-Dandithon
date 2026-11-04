@@ -24,7 +24,7 @@ export default function HomeClient() {
     );
   }
 
-  const { treeId, generatedDiaries } = JSON.parse(snapshot);
-  const { tree, diary } = getHomeDataForTree(treeId, generatedDiaries);
-  return <HomeView tree={tree} diary={diary} />;
+  const { treeId, generatedDiaries, demoState, adoptionWeeks } = JSON.parse(snapshot);
+  const { tree, diary } = getHomeDataForTree(treeId, generatedDiaries, demoState);
+  return <HomeView tree={tree} diary={diary} adoptionWeeks={adoptionWeeks} />;
 }

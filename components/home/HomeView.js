@@ -9,12 +9,13 @@ import Card from "@/components/common/Card";
 import SeasonCard from "@/components/common/SeasonCard";
 import PhotoPlaceholder from "@/components/common/PhotoPlaceholder";
 import {
-  SEASON_NAMES, STAGE_DESCRIPTIONS, getDiaryHref,
+  HARVEST_SOON_STAGE, SEASON_NAMES, STAGE_DESCRIPTIONS, getDiaryHref, getDiaryStage, getPlannedStage, isStageAdjusted, seasonOfWeek,
 } from "@/lib/data";
 import styles from "./Home.module.css";
 
-export default function HomeView({ tree, diary }) {
-  const season = SEASON_NAMES[diary?.season] ? diary.season : "spring";
+export default function HomeView({ tree, diary, adoptionWeeks = 0 }) {
+  const season = tree ? seasonOfWeek(tree.currentWeek) : "spring";
+  const currentDiary = diary?.week === tree?.currentWeek ? diary : null;
 
   return (
     <div className={`app-shell ${styles.shell}`} data-season={season}>
@@ -30,8 +31,8 @@ export default function HomeView({ tree, diary }) {
       <main className="app-content">
         {tree ? (
           <>
-            <TreeOverview tree={tree} diary={diary} season={season} />
-            <DiaryPreview diary={diary} />
+            <TreeOverview tree={tree} diary={currentDiary} hasDiaries={Boolean(diary)} season={season} adoptionWeeks={adoptionWeeks} />
+            <DiaryPreview diary={diary} tree={tree} />
             <div className={`btn-row ${styles.actions}`}>
               <Button href="/letter" variant="secondary">편지 쓰기</Button>
               <Button href="/chat">나무에게 묻기</Button>
@@ -40,7 +41,7 @@ export default function HomeView({ tree, diary }) {
         ) : <EmptyHome />}
       </main>
 
-      {tree && <TabBar currentWeek={diary?.week ?? tree.currentWeek} />}
+      {tree && <TabBar currentWeek={tree.currentWeek} />}
     </div>
   );
 }
@@ -66,23 +67,31 @@ function EmptyHome() {
   );
 }
 
-function TreeOverview({ tree, diary, season }) {
-  const stage = diary?.evidence?.growthStage ?? "판단 불가";
-  const currentWeek = Math.max(tree.currentWeek, diary?.week ?? 0);
+function TreeOverview({ tree, diary, hasDiaries, season, adoptionWeeks }) {
+  const stage = diary ? getDiaryStage(diary, tree) : getPlannedStage(tree);
+  const currentWeek = tree.currentWeek;
   const weeksToHarvest = Math.max(0, tree.harvestWeek - currentWeek);
-  const photo = diary?.photo?.url ? diary.photo : { url: tree.photo, type: "tree" };
+  // 이번 주 성장 기록의 사진만 씁니다. 지난 주 사진은 아래 일기 카드에, tree.photo는 분양 소개에만 씁니다.
+  const photo = diary?.photo?.url ? diary.photo : { url: null, type: "tree" };
 
   return (
     <section aria-labelledby="home-tree-name">
       <SeasonCard season={season} className={styles.treeCard}>
-        <TreePhoto key={photo.url ?? "placeholder"} photo={photo} treeName={tree.name} />
+        <TreePhoto key={photo.url ?? "placeholder"} photo={photo} treeName={tree.name}
+          emptyText={hasDiaries ? `${currentWeek}주차 사진이 아직 도착하지 않았어요.` : undefined}
+          emptyNote={hasDiaries && !diary ? "이번 주 새로운 소식을 기다리고 있어요." : null} />
         <div className={styles.treeDetails}>
           <div className={styles.treeInfo}>
             <h2 id="home-tree-name" className={`tree-name ${styles.noMargin}`}>{tree.name}</h2>
             <p className={`${styles.stageLine} ${styles.noMargin}`}>
-              <StageIcon stage={stage} size={22} />
-              <span>{SEASON_NAMES[season]} · {STAGE_DESCRIPTIONS[stage] ?? "성장 기록을 기다리고 있어요"}</span>
+              <StageIcon stage={stage ?? "판단 불가"} size={22} />
+              <span>{SEASON_NAMES[season]} · 생육 {currentWeek}주차{stage && <span style={{ whiteSpace: "nowrap" }}> · {stage}</span>}</span>
             </p>
+            <p className={styles.noMargin}>함께한 기간 {adoptionWeeks}주차</p>
+            <p className={styles.noMargin}>{stage === HARVEST_SOON_STAGE
+              ? "수확이 얼마 남지 않았어요."
+              : diary ? STAGE_DESCRIPTIONS[stage] ?? "성장 단계를 판단하기 어려워요."
+                : "새로운 성장 소식을 기다리고 있어요."}</p>
           </div>
           <div className={styles.harvest}>
             <span>수확까지</span>
@@ -94,6 +103,7 @@ function TreeOverview({ tree, diary, season }) {
             {diary.week}주차 기록 · {diary.photo?.type === "orchard" ? "과수원 전체 기준" : "내 나무 기준"}
             {typeof diary.evidence?.farmerConfirmed === "boolean"
               && ` · ${diary.evidence.farmerConfirmed ? "농부 확인" : "AI 사진 분석"}`}
+            {isStageAdjusted(diary, tree) && <span style={{ whiteSpace: "nowrap" }}> · AI 판정 {diary.evidence.growthStage ?? "판단 불가"}</span>}
           </p>
         )}
       </SeasonCard>
@@ -101,10 +111,14 @@ function TreeOverview({ tree, diary, season }) {
   );
 }
 
-function TreePhoto({ photo, treeName }) {
+function TreePhoto({ photo, treeName, emptyText = `아직 ${treeName}의 사진이 도착하지 않았어요.`, emptyNote = null }) {
   const [failed, setFailed] = useState(false);
   if (!photo.url || failed) {
-    return <PhotoPlaceholder className={styles.photo} aria-label="나무 사진 준비 중">나무 사진 준비 중</PhotoPlaceholder>;
+    return (
+      <PhotoPlaceholder className={styles.photo} aria-label={emptyNote ? `${emptyText} ${emptyNote}` : emptyText}>
+        <span>{emptyText}{emptyNote && <><br />{emptyNote}</>}</span>
+      </PhotoPlaceholder>
+    );
   }
   const label = photo.type === "orchard" ? "과수원 전체 모습" : `${treeName}의 모습`;
   return (
@@ -116,7 +130,7 @@ function TreePhoto({ photo, treeName }) {
   );
 }
 
-function DiaryPreview({ diary }) {
+function DiaryPreview({ diary, tree }) {
   if (!diary) {
     return (
       <section className="card-diary" aria-labelledby="waiting-diary-title">
@@ -125,12 +139,14 @@ function DiaryPreview({ diary }) {
       </section>
     );
   }
+  const stage = getDiaryStage(diary, tree);
   return (
     <Card href={getDiaryHref(diary)} variant="diary"
       aria-label={`${diary.week}주차 일기, ${diary.title} 읽기`}>
       <div className="card-label-row">
-        <span>이번 주 나무 일기</span><span>{diary.week}주차</span>
+        <span>최근 나무 일기</span><span>{diary.week}주차 · {SEASON_NAMES[diary.season]}{stage && ` · ${stage}`}</span>
       </div>
+      <TreePhoto key={diary.photo.url ?? "placeholder"} photo={diary.photo} treeName={tree.name} />
       <h2 className="diary-title">{diary.title}</h2>
       <p className={`diary-text ${styles.diaryPreview}`}>{diary.text}</p>
       <span className="link-more">일기 읽기</span>

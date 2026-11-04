@@ -1,8 +1,8 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { getTree } from "@/lib/data";
-import { getSelectedTreeId, subscribeToSelectedTree } from "@/lib/storage";
+import { getActiveTree } from "@/lib/storage";
+import { getDiaryStorageSnapshot, subscribeToDiary } from "@/lib/storage";
 import Button from "@/components/common/Button";
 import Card from "@/components/common/Card";
 import FarmerForm from "./FarmerForm";
@@ -11,8 +11,9 @@ import styles from "./Farmer.module.css";
 const getServerSnapshot = () => undefined;
 
 export default function FarmerClient() {
-  const treeId = useSyncExternalStore(subscribeToSelectedTree, getSelectedTreeId, getServerSnapshot);
-  const tree = treeId ? getTree(treeId) : null;
+  const snapshot = useSyncExternalStore(subscribeToDiary, getDiaryStorageSnapshot, getServerSnapshot);
+  const treeId = snapshot === undefined ? undefined : JSON.parse(snapshot).treeId;
+  const tree = treeId ? getActiveTree(treeId) : null;
 
   return (
     <div className={`app-shell ${styles.shell}`}>

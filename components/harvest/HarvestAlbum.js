@@ -16,8 +16,8 @@ import PhotoPlaceholder from "@/components/common/PhotoPlaceholder";
 import TabBar from "@/components/common/TabBar";
 import NoTreeSelected from "@/components/tree/NoTreeSelected";
 import { withWa } from "@/components/tree/josa";
-import { getTree, SEASON_NAMES } from "@/lib/data";
-import { getAllDiaries, getLetters, getSavedWords, getSelectedTreeId, subscribeToStorage } from "@/lib/storage";
+import { SEASON_NAMES } from "@/lib/data";
+import { getActiveTree, getAdoptionWeeks, getAllDiaries, getLetters, getSavedWords, getSelectedTreeId, subscribeToStorage } from "@/lib/storage";
 import { IconQr } from "@/components/common/Icons";
 
 const LETTER_MAX_LENGTH = 40;
@@ -31,6 +31,7 @@ function getAlbumSnapshot() {
     diaries: getAllDiaries(treeId),
     letters: getLetters(treeId),
     words: getSavedWords(),
+    adoptionWeeks: getAdoptionWeeks(treeId),
   });
 }
 
@@ -74,7 +75,7 @@ export default function HarvestAlbum() {
   }
 
   const stored = JSON.parse(snapshot);
-  const tree = getTree(stored.treeId);
+  const tree = getActiveTree(stored.treeId);
   if (!tree) return <NoTreeSelected title="수확 앨범" />;
 
   const diaries = stored.diaries.filter((diary) => diary.week <= tree.currentWeek);
@@ -95,7 +96,7 @@ export default function HarvestAlbum() {
         </p>
         <h1 className="album-title">{withWa(tree.name)} 함께한 1년</h1>
         <p className="album-stats" style={{ margin: 0 }}>
-          <span>{tree.currentWeek - tree.startWeek}주</span>
+          <span>{stored.adoptionWeeks}주 함께함</span>
           <span>일기 {diaries.length}편</span>
           <span>편지 {letters.length}통</span>
         </p>

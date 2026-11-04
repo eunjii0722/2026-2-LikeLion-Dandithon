@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import TopBar from "@/components/common/TopBar";
 import Button from "@/components/common/Button";
-import { getTree } from "@/lib/data";
+import { getActiveTree } from "@/lib/storage";
 import { getSelectedTreeId, getLetters, subscribeToStorage } from "@/lib/storage";
 import LetterForm from "./LetterForm";
 import LetterList from "./LetterList";
@@ -16,12 +16,12 @@ export default function LetterView() {
     useEffect(() => {
         function refresh() {
             const treeId = getSelectedTreeId();
-            setTree(treeId ? getTree(treeId) : null);
+            setTree(treeId ? getActiveTree(treeId) : null);
             setLetters(treeId ? getLetters(treeId) : []);
             setLoaded(true);
         }
         refresh();
-        return subscribeToStorage(refresh, ["selectedTreeId", "letters"]);
+        return subscribeToStorage(refresh, ["selectedTreeId", "letters", "generatedDiaries"]);
     }, []);
 
     return (

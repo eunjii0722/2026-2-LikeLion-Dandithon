@@ -7,6 +7,9 @@
 .evidenceSection { display: flex; flex-direction: column; gap: var(--space-2); }
 .evidence > div { min-width: 0; }
 .related { display: flex; flex-direction: column; gap: var(--space-1); text-decoration: none; }
+/* 버튼 수만큼 같은 너비의 열이 생겨 둘이면 나란히, 하나면 한 줄 전체를 씁니다. */
+.stateActions { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 8px; }
+.stateActions > a { min-width: 0; padding-inline: 8px; text-align: center; white-space: normal; }
 @media (max-width: 360px) {
   .navigation { grid-template-columns: 1fr; }
 }

@@ -1,0 +1,107 @@
+{
+  "description": "시연용 지정 날짜·가상 편지·가상 농부 메모. 사진 촬영일 또는 실제 사용자·농부 활동이 아님.",
+  "treeId": "tree-1",
+  "model": "gemini-3.5-flash-lite",
+  "entries": [
+    {
+      "week": 18,
+      "observedAt": "2026-05-02",
+      "expectedStage": "개화",
+      "photo": "spring-flowering.jpg",
+      "photoType": "orchard",
+      "farmerNote": "사진에 주변 나무도 함께 담겨 있습니다. 개별 분양 나무의 상태나 실제 수확 적기를 확인한 기록은 없습니다.",
+      "farmerConfirmed": false
+    },
+    {
+      "week": 21,
+      "observedAt": "2026-05-23",
+      "expectedStage": "착과",
+      "photo": "spring-fruit-set.jpg",
+      "photoType": "orchard",
+      "farmerNote": "사진에 주변 나무도 함께 담겨 있습니다. 개별 분양 나무의 상태나 실제 수확 적기를 확인한 기록은 없습니다.",
+      "farmerConfirmed": false
+    },
+    {
+      "week": 28,
+      "observedAt": "2026-07-11",
+      "expectedStage": "비대",
+      "photo": "summer-fruit-growth.jpg",
+      "photoType": "orchard",
+      "farmerNote": "사진에 주변 나무도 함께 담겨 있습니다. 개별 분양 나무의 상태나 실제 수확 적기를 확인한 기록은 없습니다.",
+      "farmerConfirmed": false
+    },
+    {
+      "week": 35,
+      "observedAt": "2026-08-29",
+      "expectedStage": "착색",
+      "photo": "summer-fruit-coloring.jpg",
+      "photoType": "orchard",
+      "farmerNote": "사진에 주변 나무도 함께 담겨 있습니다. 개별 분양 나무의 상태나 실제 수확 적기를 확인한 기록은 없습니다.",
+      "farmerConfirmed": false
+    }
+  ],
+  "letters": [
+    {
+      "id": "demo-letter-1",
+      "treeId": "tree-1",
+      "week": 18,
+      "text": "홍아, 사진 속 하얀 꽃들이 참 예쁘다! 올해 너의 소식을 함께 기다릴게.",
+      "createdAt": "2026-05-02T09:00:00+09:00",
+      "usedInDiaryId": null
+    },
+    {
+      "id": "demo-letter-2",
+      "treeId": "tree-1",
+      "week": 19,
+      "text": "꽃이 지나간 자리에 작은 사과가 맺히는 모습도 보고 싶어. 다음 사진이 기대돼!",
+      "createdAt": "2026-05-09T09:00:00+09:00",
+      "usedInDiaryId": null
+    },
+    {
+      "id": "demo-letter-3",
+      "treeId": "tree-1",
+      "week": 20,
+      "text": "홍아, 작은 열매 소식이 궁금해서 또 편지를 남겨. 서두르지 말고 천천히 만나자.",
+      "createdAt": "2026-05-16T09:00:00+09:00",
+      "usedInDiaryId": null
+    },
+    {
+      "id": "demo-letter-4",
+      "treeId": "tree-1",
+      "week": 25,
+      "text": "요즘 열매는 어떤 모습일까? 다음 사진에서 초록 사과를 볼 수 있으면 좋겠어.",
+      "createdAt": "2026-06-20T09:00:00+09:00",
+      "usedInDiaryId": null
+    },
+    {
+      "id": "demo-letter-5",
+      "treeId": "tree-1",
+      "week": 27,
+      "text": "잘 자라고 있는지 궁금해. 홍이 소식 읽는 시간이 내 작은 즐거움이야.",
+      "createdAt": "2026-07-04T09:00:00+09:00",
+      "usedInDiaryId": null
+    },
+    {
+      "id": "demo-letter-6",
+      "treeId": "tree-1",
+      "week": 32,
+      "text": "초록 사과에 붉은빛이 들 날을 기다리고 있어. 색이 어떻게 달라질지 궁금하다!",
+      "createdAt": "2026-08-08T09:00:00+09:00",
+      "usedInDiaryId": null
+    },
+    {
+      "id": "demo-letter-7",
+      "treeId": "tree-1",
+      "week": 34,
+      "text": "홍아, 다음 사진에서는 어떤 색을 보여 줄까? 가을에도 계속 소식 전해 줘.",
+      "createdAt": "2026-08-22T09:00:00+09:00",
+      "usedInDiaryId": null
+    }
+  ],
+  "liveDemo": {
+    "week": 39,
+    "observedAt": "2026-09-26",
+    "photo": "autumn-demo.jpg",
+    "generateInAdvance": false
+  }
+}

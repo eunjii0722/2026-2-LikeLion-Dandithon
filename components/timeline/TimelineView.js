@@ -4,7 +4,8 @@
    성장 타임라인 화면 본문
    ---------------------------------------------------------
    고른 나무 id가 브라우저 저장소에 있어서 화면이 뜬 뒤 읽음 (공통 안내 5-1).
-   - 지난 주·이번 주: mergeDiaries(treeId, generatedDiaries) (JSON 일기 + 농부 화면에서 새로 만든 일기)
+   - 지난 주·이번 주: getUserDiaries(treeId, generatedDiaries) (브라우저에 저장된 일기만)
+   - 이번 주: 수확 직전인데 일기가 아직 없으면 기다리는 칸 하나
    - 아직 오지 않은 주: 앞으로 올 계절마다 첫 주 한 칸 + 수확 주
      (공통 데이터에 예고 필드가 없어서 주차를 달로 바꿔 계절을 계산)
    ========================================================= */
@@ -13,7 +14,7 @@ import { useSyncExternalStore } from "react";
 import SeasonGroup from "./SeasonGroup";
 import TabBar from "@/components/common/TabBar";
 import NoTreeSelected from "@/components/tree/NoTreeSelected";
-import { getDiaryHref, getTree, mergeDiaries, STAGE_DESCRIPTIONS } from "@/lib/data";
+import { getDiaryHref, getDiaryStage, getPlannedStage, getUserTree, getUserDiaries } from "@/lib/data";
 import { getDiaryStorageSnapshot, subscribeToDiary } from "@/lib/storage";
 
 const SEASON_ORDER = ["spring", "summer", "autumn", "winter"];
@@ -31,11 +32,6 @@ function seasonOfWeek(week) {
   return "winter";
 }
 
-/* "판단 불가"나 비어 있는 단계는 보여주지 않음 */
-function stageLabel(growthStage) {
-  return Object.hasOwn(STAGE_DESCRIPTIONS, growthStage) ? growthStage : null;
-}
-
 function buildGroups(tree, diaries) {
   const { name, currentWeek, harvestWeek } = tree;
 
@@ -45,7 +41,7 @@ function buildGroups(tree, diaries) {
       key: diary.id,
       week: diary.week,
       season: diary.season,
-      stage: stageLabel(diary.evidence.growthStage),
+      stage: getDiaryStage(diary, tree),
       headline: diary.title,
       photoUrl: diary.photo.url,
       href: getDiaryHref(diary),
@@ -53,6 +49,22 @@ function buildGroups(tree, diaries) {
       isCurrent: diary.week === currentWeek && !diary.isSpecial,
       isLocked: false,
     }));
+
+  const plannedStage = getPlannedStage(tree);
+  if (plannedStage && !openItems.some((item) => item.isCurrent)) {
+    openItems.push({
+      key: `current-${currentWeek}`,
+      week: currentWeek,
+      season: seasonOfWeek(currentWeek),
+      stage: plannedStage,
+      headline: "이번 주 사진을 기다리고 있어요",
+      photoUrl: null,
+      href: `/diary/${currentWeek}`,
+      isSpecial: false,
+      isCurrent: true,
+      isLocked: false,
+    });
+  }
 
   // 아직 오지 않은 계절마다 첫 주 한 칸. 수확 주가 있는 계절은 수확 주로 대신함
   const lockedItems = [];
@@ -79,7 +91,7 @@ function buildGroups(tree, diaries) {
     });
   }
 
-  // mergeDiaries가 이미 주차·특별 소식 순으로 정렬해 주므로 잠긴 칸만 끼워 넣음
+  // getUserDiaries가 이미 주차·특별 소식 순으로 정렬해 주므로 잠긴 칸만 끼워 넣음
   const items = [...openItems, ...lockedItems.map((item) => ({ ...item, isLocked: true }))].sort(
     (a, b) => a.week - b.week,
   );
@@ -103,8 +115,8 @@ export default function TimelineView() {
     );
   }
 
-  const { treeId, generatedDiaries } = JSON.parse(snapshot);
-  const tree = getTree(treeId);
+  const { treeId, generatedDiaries, demoState, adoptionWeeks } = JSON.parse(snapshot);
+  const tree = getUserTree(treeId, generatedDiaries, demoState);
   if (!tree) return <NoTreeSelected title="성장 타임라인" />;
 
   const { name, startWeek, currentWeek, harvestWeek } = tree;
@@ -112,7 +124,7 @@ export default function TimelineView() {
     100,
     Math.max(0, Math.round(((currentWeek - startWeek) / (harvestWeek - startWeek)) * 100)),
   );
-  const groups = buildGroups(tree, mergeDiaries(tree.id, generatedDiaries));
+  const groups = buildGroups(tree, getUserDiaries(tree.id, generatedDiaries));
 
   return (
     <div className="app-shell" data-season={seasonOfWeek(currentWeek)}>
@@ -134,8 +146,8 @@ export default function TimelineView() {
             <div className="progress-fill" />
           </div>
           <p className="progress-caption">
-            <span>{currentWeek - startWeek}주 함께함</span>
-            <span>수확까지 {harvestWeek - currentWeek}주</span>
+            <span>{adoptionWeeks}주 함께함</span>
+            <span>수확까지 {Math.max(0, harvestWeek - currentWeek)}주</span>
           </p>
         </div>
 
