@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { initializeDemo } from "../../public/demo/initialize.js";
 import Image from "next/image";
 import { StageIcon } from "@/components/common/Icons";
 import TabBar from "@/components/common/TabBar";
@@ -47,6 +48,29 @@ export default function HomeView({ tree, diary, adoptionWeeks = 0 }) {
 }
 
 function EmptyHome() {
+  const pending = useRef(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleBrowse() {
+    if (pending.current) return;
+    pending.current = true;
+    setLoading(true);
+    setError("");
+    try {
+      const result = await initializeDemo();
+      // 초기화의 storage-change 알림을 HomeClient가 구독하므로 성공 즉시 홈을 다시 읽습니다.
+      if (!result.ok) setError(result.existingKeys?.length
+        ? "이 브라우저에는 기존 기록이 있어요. 별도의 브라우저 프로필에서 둘러보기를 이용해 주세요."
+        : result.reason || "성장 기록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.");
+    } catch {
+      setError("성장 기록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.");
+    } finally {
+      pending.current = false;
+      setLoading(false);
+    }
+  }
+
   return (
     <>
       <section aria-labelledby="empty-tree-title">
@@ -60,6 +84,17 @@ function EmptyHome() {
             나무의 소식을 일기로 만나고,<br />가을에는 사과를 받아요.
           </p>
           <Button href="/trees" block>나무 고르러 가기</Button>
+          <div className={styles.browse}>
+            <Button variant="secondary" block className={styles.browseButton}
+              onClick={handleBrowse} disabled={loading} aria-describedby="browse-description">
+              홍이의 성장 기록 둘러보기
+            </Button>
+            <p id="browse-description" className={`caption ${styles.noMargin}`}>
+              미리 준비된 예시 기록으로 사계절의<br />성장 과정을 체험할 수 있어요.
+            </p>
+            {loading && <p className={`caption ${styles.noMargin}`} role="status">성장 기록을 불러오는 중이에요.</p>}
+            {error && <p className={`error-message ${styles.noMargin}`} role="alert">{error}</p>}
+          </div>
         </SeasonCard>
       </section>
       <p className="info-card">나무를 분양받으면 이곳에서 사진과 최근 성장 일기, 성장 상태를 볼 수 있어요.</p>
