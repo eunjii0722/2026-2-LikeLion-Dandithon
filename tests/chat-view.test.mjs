@@ -265,6 +265,7 @@ test("flower questions keep diary-based Gemini chat without querying ASOS", asyn
   globalThis.fetch = async () => { throw new Error("ASOS must not be called"); };
   const response = await POST(new Request("http://localhost/api/chat", { method: "POST", body: JSON.stringify({
     treeId: "tree-1", question: "홍이는 꽃이 폈어?", recentDiaries: [{ id: "tree-1-w18", text: "꽃이 보였어." }],
+    weatherContext: { observations: [{ weather: { tempMax: 99, tempMin: 0, rainMm: 0 } }] },
   }) }));
   assert.equal(response.status, 200);
   assert.equal(globalThis.chatPayloads[0].weatherContext, null);
