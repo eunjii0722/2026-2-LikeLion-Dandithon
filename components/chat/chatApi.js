@@ -1,5 +1,6 @@
 // api/chat으로 질문을 보내고 답 받아오는 함수. 요청 모양이 바뀌면 이 파일만 수정
 import * as storage from "../../lib/storage.js";
+import { isDemoDiary } from "../../lib/data.js";
 
 const MAX_HISTORY = 10;
 // api/chat이 일기 배열의 뒤쪽 30개만 사용함. 꽃 핀 시기처럼 지난 기록을 묻는 질문에도 답하도록 한도만큼 보냄
@@ -16,11 +17,17 @@ export function visibleDiaries(diaries, currentWeek) {
 }
 
 // 대화에 필요한 정보만 오래된 주차부터 담음. 사진 데이터와 다른 근거 정보는 보내지 않음
-export function toChatDiaries(diaries, currentWeek) {
+export function toChatDiaries(diaries, currentWeek, demoIds = null) {
     return visibleDiaries(diaries, currentWeek)
         .sort((a, b) => a.week - b.week)
         .slice(-MAX_DIARIES)
-        .map(({ id, treeId, week, title, text }) => ({ id, treeId, week, title, text }));
+        .map(({ id, treeId, week, title, text, evidence }) => ({
+            id, treeId, week, title, text,
+            recordKind: demoIds ? demoIds.has(id) ? "demo" : "generated" : null,
+            observedAt: evidence?.observedAt ?? null,
+            // 사진·농부 메모는 보내지 않습니다. 기록된 관측 수치만 대화 근거로 전달합니다.
+            weather: evidence?.weather ?? null,
+        }));
 }
 
 function toApiHistory(messages) {
@@ -59,7 +66,9 @@ export async function requestChat({ treeId, question, messages, recentDiaries },
             504: "답변 시간이 초과됐어요. 다시 시도해 주세요.",
         };
         if (controller.signal.aborted) throw new Error("timeout");
-        if (!response.ok || !data?.answer) throw new Error(errors[response.status] ?? data?.error ?? "대화 요청에 실패했어요.");
+        if (!response.ok || !data?.answer) throw new Error(
+            data?.errorType === "weather" ? data.error : errors[response.status] ?? data?.error ?? "대화 요청에 실패했어요.",
+        );
         return { answer: data.answer, source: data.source ?? null };
     } catch (error) {
         logChatTiming("request-error", started);
@@ -100,11 +109,16 @@ export async function sendChatQuestion(treeId, question, { store = storage, requ
     const started = startChatTiming();
     setActiveRequest({ treeId, started });
     try {
+        const diaries = store.getAllDiaries(treeId);
+        const demoState = store.getDemoState?.();
         const { answer, source } = await request({
             treeId,
             question,
             messages: previous,
-            recentDiaries: toChatDiaries(store.getAllDiaries(treeId), store.getActiveTree(treeId).currentWeek),
+            recentDiaries: toChatDiaries(
+                diaries, store.getActiveTree(treeId).currentWeek,
+                new Set(diaries.filter((diary) => isDemoDiary(diary, demoState)).map((diary) => diary.id)),
+            ),
         });
         if (!store.addChatMessage({ treeId, role: "tree", text: answer, source })) throw new Error("답변을 저장하지 못했어요. 다시 시도해 주세요.");
         logChatTiming("response-saved", started);

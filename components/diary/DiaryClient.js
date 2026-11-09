@@ -8,7 +8,7 @@ import DiaryCard from "./DiaryCard";
 import Button from "@/components/common/Button";
 import Card from "@/components/common/Card";
 import PhotoPlaceholder from "@/components/common/PhotoPlaceholder";
-import { getDiaryModel, getDiaryHref, getDiaryStage, getPlannedStage, isStageAdjusted, SEASON_NAMES } from "@/lib/data";
+import { getDiaryModel, getDiaryHref, getDiaryStage, getPlannedStage, isDemoDiary, isStageAdjusted, SEASON_NAMES } from "@/lib/data";
 import { getDiaryStorageSnapshot, subscribeToDiary } from "@/lib/storage";
 import styles from "./Diary.module.css";
 
@@ -35,7 +35,8 @@ export default function DiaryClient({ week, diaryId }) {
         <span>생육 {week}주차 · {[SEASON_NAMES[season], stage].filter(Boolean).join(" · ") || "나무 일기"}</span>
       </header>
       <main className="app-content">
-        {model.status === "ready" ? <DiaryDetail key={model.diary.id} model={model} savedWords={stored.savedWords} />
+        {model.status === "ready" ? <DiaryDetail key={model.diary.id} model={model} savedWords={stored.savedWords}
+          isGenerated={!isDemoDiary(model.diary, stored.demoState)} />
           : <DiaryState status={model.status} previousDiary={model.previousDiary} pending={pending} />}
       </main>
     </div>
@@ -61,12 +62,13 @@ function DiaryState({ status, previousDiary, pending }) {
   );
 }
 
-function DiaryDetail({ model, savedWords }) {
+function DiaryDetail({ model, savedWords, isGenerated }) {
   const { tree, diary, previousWeek, nextWeek, related } = model;
   const [evidenceOpen, setEvidenceOpen] = useState(false);
   const evidenceId = useId();
   return (
     <>
+      <p className={`caption ${styles.noMargin}`}>{isGenerated ? "AI 생성 성장일기 · 이 브라우저에 저장됨" : "시연용 예시 성장일기"}</p>
       {!diary.isSpecial && <DiaryPhoto key={diary.photo?.url ?? "placeholder"} photo={diary.photo} />}
       {/* 같은 ID로 재생성돼도 이전 본문의 뜻풀이·저장 안내가 남지 않게 합니다. */}
       <DiaryCard key={JSON.stringify([diary.text, diary.dialectWords])} diary={diary} savedWords={savedWords} />
