@@ -14,7 +14,7 @@ import { useSyncExternalStore } from "react";
 import SeasonGroup from "./SeasonGroup";
 import TabBar from "@/components/common/TabBar";
 import NoTreeSelected from "@/components/tree/NoTreeSelected";
-import { getDiaryHref, getDiaryStage, getPlannedStage, getUserTree, getUserDiaries } from "@/lib/data";
+import { getDiaryHref, getDiaryStage, getPlannedStage, getUserTree, getUserDiaries, isDemoDiary } from "@/lib/data";
 import { getDiaryStorageSnapshot, subscribeToDiary } from "@/lib/storage";
 
 const SEASON_ORDER = ["spring", "summer", "autumn", "winter"];
@@ -32,7 +32,7 @@ function seasonOfWeek(week) {
   return "winter";
 }
 
-function buildGroups(tree, diaries) {
+function buildGroups(tree, diaries, demoState) {
   const { name, currentWeek, harvestWeek } = tree;
 
   const openItems = diaries
@@ -43,6 +43,7 @@ function buildGroups(tree, diaries) {
       season: diary.season,
       stage: getDiaryStage(diary, tree),
       headline: diary.title,
+      recordLabel: isDemoDiary(diary, demoState) ? "시연용 예시 기록" : "AI 생성 기록",
       photoUrl: diary.photo.url,
       href: getDiaryHref(diary),
       isSpecial: diary.isSpecial,
@@ -124,7 +125,7 @@ export default function TimelineView() {
     100,
     Math.max(0, Math.round(((currentWeek - startWeek) / (harvestWeek - startWeek)) * 100)),
   );
-  const groups = buildGroups(tree, getUserDiaries(tree.id, generatedDiaries));
+  const groups = buildGroups(tree, getUserDiaries(tree.id, generatedDiaries), demoState);
 
   return (
     <div className="app-shell" data-season={seasonOfWeek(currentWeek)}>

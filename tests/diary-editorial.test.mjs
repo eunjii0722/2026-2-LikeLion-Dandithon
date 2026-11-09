@@ -101,7 +101,8 @@ test("prompts keep JSON, evidence boundaries and injection defenses without fixe
     assert.match(prompt, /기계적으로|문장 끝마다/u);
   }
   assert.match(CHAT_PROMPT, /1~3문장/u);
-  assert.match(CHAT_PROMPT, /evidence.weather/u);
+  assert.match(CHAT_PROMPT, /recentDiaries의 observedAt과 weather/u);
+  assert.match(CHAT_PROMPT, /recordKind가 demo인 일기/u);
   assert.match(CHAT_PROMPT, /null/u);
   assert.match(DIARY_PROMPT, /weather가 null이면 날씨를 모르는 상태/u);
   assert.doesNotMatch(DIARY_PROMPT, /본문에 '농부 확인 전'이라는 표현을 포함/u);

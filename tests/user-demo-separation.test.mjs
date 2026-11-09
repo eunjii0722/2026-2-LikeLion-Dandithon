@@ -1,12 +1,21 @@
 import assert from "node:assert/strict";
 import { afterEach, test } from "node:test";
 import { readFile } from "node:fs/promises";
-import { getAdoptionWeeks, getDiaries, getDiaryModel, getHomeDataForTree } from "../lib/data.js";
+import { getAdoptionWeeks, getDiaries, getDiaryModel, getHomeDataForTree, isDemoDiary } from "../lib/data.js";
 import * as storage from "../lib/storage.js";
 import { installDemoHistory, validDemoHistory } from "../public/demo/initialize.js";
 import { toChatDiaries, requestChat, sendChatQuestion, getActiveChatRequest, chatDelayMessage, CHAT_TIMEOUT_MS } from "../components/chat/chatApi.js";
 const history = JSON.parse(await readFile(new URL("../public/demo/history.json", import.meta.url), "utf8"));
 const realFetch = globalThis.fetch;
+test("demo records remain distinguishable after storage and a regenerated week becomes an AI record", () => {
+  const original = history.generatedDiaries[0];
+  const state = history["dandithon.demoState"];
+  assert.equal(isDemoDiary(original, state), true);
+  assert.equal(isDemoDiary({ ...original, text: `${original.text} 새로 생성` }, state), false);
+  assert.equal(isDemoDiary(original, null), false);
+  const sent = toChatDiaries([original, { ...original, id: "tree-1-w39", week: 39 }], 39, new Set([original.id]));
+  assert.deepEqual(sent.map((diary) => diary.recordKind), ["demo", "generated"]);
+});
 function browser(values = new Map()) {
   const target = new EventTarget();
   target.CustomEvent = CustomEvent;

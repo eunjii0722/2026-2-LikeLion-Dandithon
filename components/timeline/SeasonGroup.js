@@ -48,6 +48,7 @@ function OpenWeek({ item }) {
           {item.isCurrent && " · 이번 주"}
         </span>
         <span className="timeline-headline">{item.headline}</span>
+        {item.recordLabel && <span className={styles.special}>{item.recordLabel}</span>}
         {item.isSpecial && <span className={styles.special}>특별 소식</span>}
       </span>
     </Link>

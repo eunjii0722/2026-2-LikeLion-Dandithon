@@ -3,9 +3,9 @@
 import assert from "node:assert/strict";
 import { register } from "node:module";
 import { after, afterEach, beforeEach, test } from "node:test";
-import { getDiary } from "../lib/data.js";
+import { getDiary, isDemoDiary } from "../lib/data.js";
 import { formatChatResponse, parseChatPayload } from "../lib/chat-contract.mjs";
-import { getAllDiaries } from "../lib/storage.js";
+import { getAllDiaries, getDemoState } from "../lib/storage.js";
 import { requestChat, toChatDiaries, visibleDiaries } from "../components/chat/chatApi.js";
 
 const fakeGemini = `
@@ -17,6 +17,7 @@ export async function answerTreeQuestion(payload) {
 `;
 register(`data:text/javascript,${encodeURIComponent(`
 export async function resolve(specifier, context, nextResolve) {
+  if (specifier === "server-only") return { shortCircuit: true, url: "data:text/javascript," };
   if (specifier === "@/lib/gemini-chat.js") return { shortCircuit: true, url: ${JSON.stringify(`data:text/javascript,${encodeURIComponent(fakeGemini)}`)} };
   if (specifier.startsWith("@/")) return nextResolve(new URL(specifier.slice(2), ${JSON.stringify(new URL("../", import.meta.url).href)}).href, context);
   return nextResolve(specifier, context);
@@ -41,7 +42,8 @@ function seedGenerated(diaries) {
   };
 }
 // 화면과 같은 경로로 요청 본문을 만듭니다.
-async function sentBody({ messages = [], diaries = toChatDiaries(getAllDiaries("tree-1"), CURRENT_WEEK) } = {}) {
+async function sentBody({ messages = [], diaries = toChatDiaries(getAllDiaries("tree-1"), CURRENT_WEEK,
+  new Set(getAllDiaries("tree-1").filter((diary) => isDemoDiary(diary, getDemoState())).map((diary) => diary.id))) } = {}) {
   let body;
   globalThis.fetch = async (url, init) => {
     assert.equal(url, "/api/chat");
@@ -83,7 +85,7 @@ test("history keeps the existing field priority and the last 10 messages", async
 test("new users never send static demo diaries to the API", async () => {
   const { recentDiaries } = JSON.parse(await sentBody());
   assert.deepEqual(recentDiaries.map((diary) => diary.id), []);
-  for (const diary of recentDiaries) assert.deepEqual(Object.keys(diary), ["id", "treeId", "week", "title", "text"]);
+  for (const diary of recentDiaries) assert.deepEqual(Object.keys(diary), ["id", "treeId", "week", "title", "text", "recordKind", "observedAt", "weather"]);
   assert.deepEqual(parseChatPayload(JSON.parse(await sentBody())).value.recentDiaries.map((diary) => diary.id), []);
 });
 
@@ -115,12 +117,16 @@ test("visible diaries stop at the current week for the stage icon too", () => {
   assert.deepEqual(visibleDiaries([], 18), []);
 });
 
-test("photos and other evidence are not sent, so a large photo cannot break the chat", async () => {
+test("photos and private farmer notes are not sent, while diary weather remains available", async () => {
   seedGenerated([generated({ photo: { url: PHOTO, type: "tree" } })]);
   const raw = await sentBody();
   for (const text of ["base64", "data:image", "photo", "evidence", "farmerNote", "dialectWords"]) {
     assert.ok(!raw.includes(text), text);
   }
+  const diary = JSON.parse(raw).recentDiaries.find((item) => item.id === "tree-1-w17");
+  assert.equal(diary.recordKind, "generated");
+  assert.equal(diary.observedAt, "2026-05-02");
+  assert.equal(diary.weather, null);
   const post = (body) => POST(new Request("http://localhost/api/chat", { method: "POST", body }));
   const response = await post(raw);
   assert.equal(response.status, 200);
@@ -129,6 +135,20 @@ test("photos and other evidence are not sent, so a large photo cannot break the 
   // 수정 전처럼 일기 전체를 보내면 서버 본문 한도(128KB)에 걸립니다.
   const full = JSON.stringify({ treeId: "tree-1", question: "질문", recentDiaries: getAllDiaries("tree-1") });
   assert.equal((await post(full)).status, 413);
+});
+
+test("chat sends dated recorded weather and marks generated versus demo diaries", async () => {
+  const diary = generated({ evidence: { ...getDiary("tree-1", 21).evidence,
+    observedAt: "2026-09-26", weather: { tempMax: 24.5, tempMin: 16, rainMm: 0.1 } } });
+  seedGenerated([diary]);
+  const sent = toChatDiaries([diary, getDiary("tree-1", 18)], CURRENT_WEEK, new Set(["tree-1-w18"]));
+  const { value } = parseChatPayload({ treeId: "tree-1", question: "날씨", recentDiaries: sent });
+  assert.deepEqual(value.recentDiaries[0].weather, { tempMax: 24.5, tempMin: 16, rainMm: 0.1 });
+  assert.equal(value.recentDiaries[0].observedAt, "2026-09-26");
+  assert.equal(value.recentDiaries[0].recordKind, "generated");
+  assert.equal(formatChatResponse({ answer: "기록에 있데이", sourceId: diary.id }, value.recentDiaries).source,
+    "AI 생성 성장일기 · 17주차 · 생성 일기");
+  assert.equal(value.recentDiaries[1].recordKind, "demo");
 });
 
 test("the newest diaries survive when there are more than the API uses", () => {
@@ -144,8 +164,49 @@ test("a source can only name a diary that was actually sent", async () => {
   seedGenerated([getDiary("tree-1", 18), generated({ id: "tree-1-w20", week: 20 })]);
   const { value } = parseChatPayload(JSON.parse(await sentBody()));
   assert.deepEqual(formatChatResponse({ answer: "답", sourceId: "tree-1-w18" }, value.recentDiaries),
-    { answer: "답", source: `18주차 일기 · ${getDiary("tree-1", 18).title}` });
+    { answer: "답", source: `AI 생성 성장일기 · 18주차 · ${getDiary("tree-1", 18).title}` });
   assert.throws(() => formatChatResponse({ answer: "답", sourceId: "tree-1-w20" }, value.recentDiaries));
+});
+
+test("a dated weather question uses ASOS directly and labels the observed source", async () => {
+  const key = "TEST-KEY";
+  process.env.KMA_ASOS_SERVICE_KEY = key;
+  globalThis.fetch = async (url) => {
+    const query = new URL(url).searchParams;
+    assert.equal(query.get("stnIds"), "276");
+    assert.equal(query.get("startDt"), "20260926");
+    return Response.json({ response: { header: { resultCode: "00" }, body: { items: { item: {
+      tm: "2026-09-26", stnId: "276", stnNm: "청송군", maxTa: "24.5", minTa: "16", sumRn: "0.1",
+    } } } } });
+  };
+  try {
+    const response = await POST(new Request("http://localhost/api/chat", { method: "POST", body: JSON.stringify({
+      treeId: "tree-1", question: "2026년 9월 26일 날씨 어땠어?", recentDiaries: [],
+    }) }));
+    const body = await response.json();
+    assert.equal(response.status, 200);
+    assert.match(body.answer, /24\.5°C.*16°C.*0\.1mm/u);
+    assert.equal(body.source, "기상청 ASOS · 청송군 · 2026-09-26");
+    assert.deepEqual(globalThis.chatPayloads, [], "Gemini is not needed for a measured daily value");
+  } finally { delete process.env.KMA_ASOS_SERVICE_KEY; }
+});
+
+test("unpublished dates and missing ASOS keys never invent values", async () => {
+  delete process.env.KMA_ASOS_SERVICE_KEY;
+  const post = async (question) => POST(new Request("http://localhost/api/chat", { method: "POST", body: JSON.stringify({ treeId: "tree-1", question }) }));
+  const unpublished = await post("2099-01-01 날씨는?");
+  assert.equal(unpublished.status, 200);
+  assert.equal((await unpublished.json()).source, null);
+  const missingKey = await post("2026-09-26 기온은?");
+  assert.equal(missingKey.status, 503);
+  assert.match((await missingKey.json()).error, /설정되지/u);
+  process.env.KMA_ASOS_SERVICE_KEY = "TEST-KEY";
+  globalThis.fetch = async () => Response.json({ response: { header: { resultCode: "20" } } });
+  try {
+    const auth = await post("2026-09-26 강수량은?");
+    assert.equal(auth.status, 502);
+    assert.deepEqual(await auth.json(), { error: "기상청 인증에 실패했어요.", errorType: "weather" });
+  } finally { delete process.env.KMA_ASOS_SERVICE_KEY; }
 });
 
 test("the route reports server and Gemini timing only in development, without any content", async () => {
