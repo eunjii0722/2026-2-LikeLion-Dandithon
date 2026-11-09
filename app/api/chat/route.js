@@ -1,7 +1,7 @@
-import { historicalWeatherDate, parseChatPayload } from '@/lib/chat-contract.mjs';
+import { parseChatPayload } from '@/lib/chat-contract.mjs';
 import { answerTreeQuestion, ChatServiceError } from '@/lib/gemini-chat.js';
 import { getTree } from '@/lib/data.js';
-import { fetchDailyWeather } from '@/lib/weather.js';
+import { loadChatWeather, resolveWeatherIntent, safeWeatherAnswer } from '@/lib/chat-weather.js';
 
 const MAX_BODY_BYTES = 128 * 1024;
 
@@ -48,26 +48,26 @@ export async function POST(request) {
     if (parsed.error) return respond({ error: parsed.error }, { status: parsed.status });
     const contract = parseChatPayload(parsed.value);
     if (contract.error) return respond({ error: contract.error }, { status: contract.status });
-    const weatherDate = historicalWeatherDate(contract.value.question);
-    if (weatherDate) {
+    const now = new Date();
+    const intent = resolveWeatherIntent(contract.value.question, contract.value.history, now);
+    let weatherContext = null;
+    if (intent) {
       const tree = getTree(contract.value.treeId);
       if (!tree) return respond({ error: '존재하지 않는 treeId입니다.' }, { status: 404 });
-      const observed = await fetchDailyWeather(weatherDate, tree.farm.region);
-      if (observed.status !== 200) return respond({ error: observed.message, errorType: 'weather' }, { status: observed.status });
-      if (!observed.weather) {
-        return respond({ answer: `${weatherDate}의 ${tree.farm.region} 일자료는 ${observed.message} 실시간 날씨도 아니데이.`, source: null });
+      weatherContext = await loadChatWeather(intent, tree.farm.region, now);
+      if (weatherContext.error) {
+        return respond({ error: weatherContext.error, errorType: 'weather' }, { status: weatherContext.status });
       }
-      const { tempMax, tempMin, rainMm } = observed.weather;
-      return respond({
-        answer: `${weatherDate} 청송군 관측값은 최고 ${tempMax}°C, 최저 ${tempMin}°C, 강수량 ${rainMm}mm였데이. 과거 하루 일자료라 지금 날씨는 아니데이.`,
-        source: `기상청 ASOS · ${observed.source.stationName} · ${weatherDate}`,
-      });
     }
     let result;
     const aiStarted = performance.now();
-    try { result = await answerTreeQuestion(contract.value); }
+    try { result = await answerTreeQuestion({ ...contract.value, weatherContext }); }
     finally { geminiMs = performance.now() - aiStarted; }
-    return respond(result);
+    if (!weatherContext) return respond(result);
+    return respond({
+      answer: safeWeatherAnswer(result.answer, weatherContext),
+      source: weatherContext.sourceLabel,
+    });
   } catch (error) {
     if (error instanceof ChatServiceError) {
       return respond({ error: error.message }, { status: error.status });

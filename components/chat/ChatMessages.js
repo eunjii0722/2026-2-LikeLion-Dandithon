@@ -1,7 +1,9 @@
 // 말풍선 목록
 
 function sourceLabel(source) {
-    return typeof source === "string" && source.trim() ? `근거 · ${source}` : "기록에 없는 내용이에요";
+    return typeof source === "string" && source.trim()
+        ? source.startsWith("조회 상태 · ") ? source : `근거 · ${source}`
+        : "기록에 없는 내용이에요";
 }
 
 export default function ChatMessage({ messages, loading, delayNotice, treeName, endRef }) {
