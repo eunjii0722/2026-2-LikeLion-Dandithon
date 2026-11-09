@@ -1,4 +1,4 @@
-// /chat 화면이 /api/chat에 보내는 요청의 회귀 검사입니다. 실제 저장소·route를 실행하되 Gemini 호출만 대역으로 바꿉니다.
+// /chat 화면이 /api/chat에 보내는 요청의 회귀 검사입니다. 실제 저장소·route를 실행하되 OpenAI 호출만 대역으로 바꿉니다.
 // 모델이 일기를 실제로 어떻게 답변에 쓰는지는 이 테스트로 확인할 수 없습니다.
 import assert from "node:assert/strict";
 import { register } from "node:module";
@@ -8,17 +8,20 @@ import { formatChatResponse, parseChatPayload } from "../lib/chat-contract.mjs";
 import { getAllDiaries, getDemoState } from "../lib/storage.js";
 import { requestChat, toChatDiaries, visibleDiaries } from "../components/chat/chatApi.js";
 
-const fakeGemini = `
-export class ChatServiceError extends Error {}
+const fakeChat = `
+export class ChatServiceError extends Error {
+  constructor(message, status) { super(message); this.status = status; }
+}
 export async function answerTreeQuestion(payload) {
   globalThis.chatPayloads.push(payload);
-  return { answer: "답변", source: null };
+  if (globalThis.chatFailure) throw globalThis.chatFailure;
+  return globalThis.chatResult;
 }
 `;
 register(`data:text/javascript,${encodeURIComponent(`
 export async function resolve(specifier, context, nextResolve) {
   if (specifier === "server-only") return { shortCircuit: true, url: "data:text/javascript," };
-  if (specifier === "@/lib/gemini-chat.js") return { shortCircuit: true, url: ${JSON.stringify(`data:text/javascript,${encodeURIComponent(fakeGemini)}`)} };
+  if (specifier === "@/lib/openai-chat.js") return { shortCircuit: true, url: ${JSON.stringify(`data:text/javascript,${encodeURIComponent(fakeChat)}`)} };
   if (specifier.startsWith("@/")) return nextResolve(new URL(specifier.slice(2), ${JSON.stringify(new URL("../", import.meta.url).href)}).href, context);
   return nextResolve(specifier, context);
 }
@@ -57,6 +60,8 @@ async function sentBody({ messages = [], diaries = toChatDiaries(getAllDiaries("
 
 beforeEach(() => {
   globalThis.chatPayloads = [];
+  globalThis.chatFailure = null;
+  globalThis.chatResult = { answer: "답변", source: null };
   seedGenerated([]);
 });
 afterEach(() => { globalThis.fetch = realFetch; });
@@ -169,7 +174,7 @@ test("a source can only name a diary that was actually sent", async () => {
   assert.throws(() => formatChatResponse({ answer: "답", sourceId: "tree-1-w20" }, value.recentDiaries));
 });
 
-test("a dated weather question sends measured ASOS data to Gemini and labels the source", async () => {
+test("a dated weather question sends measured ASOS data to OpenAI and labels the source", async () => {
   const key = "TEST-KEY";
   process.env.KMA_ASOS_SERVICE_KEY = key;
   globalThis.fetch = async (url) => {
@@ -261,7 +266,7 @@ test("yesterday follow-up receives dated ASOS data, while today never requests a
   } finally { delete process.env.KMA_ASOS_SERVICE_KEY; }
 });
 
-test("flower questions keep diary-based Gemini chat without querying ASOS", async () => {
+test("flower questions keep diary-based OpenAI chat without querying ASOS", async () => {
   globalThis.fetch = async () => { throw new Error("ASOS must not be called"); };
   const response = await POST(new Request("http://localhost/api/chat", { method: "POST", body: JSON.stringify({
     treeId: "tree-1", question: "홍이는 꽃이 폈어?", recentDiaries: [{ id: "tree-1-w18", text: "꽃이 보였어." }],
@@ -270,6 +275,32 @@ test("flower questions keep diary-based Gemini chat without querying ASOS", asyn
   assert.equal(response.status, 200);
   assert.equal(globalThis.chatPayloads[0].weatherContext, null);
   assert.equal(globalThis.chatPayloads[0].recentDiaries[0].id, "tree-1-w18");
+});
+
+test("tree growth questions without a diary source do not invent a stage", async () => {
+  const response = await POST(new Request("http://localhost/api/chat", { method: "POST", body: JSON.stringify({
+    treeId: "tree-1", question: "홍이는 꽃이 폈어?", recentDiaries: [],
+  }) }));
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.match(body.answer, /꽃 소식.*성장일기 근거가 없/u);
+  assert.equal(body.source, null);
+});
+
+test("an orchard photo diary cannot establish that Hongi's own flowers bloomed", async () => {
+  globalThis.chatResult = { answer: "꽃은 벌써 폈제.", source: "시연용 성장일기 · 18주차 · 꽃 소식", sourceId: "d1" };
+  const post = () => POST(new Request("http://localhost/api/chat", { method: "POST", body: JSON.stringify({
+    treeId: "tree-1", question: "홍이는 꽃이 폈어?", recentDiaries: [{ id: "d1", week: 18,
+      title: "꽃 소식", text: "과수원 사진이라 그중 어느 게 내 모습인지 모르겠어. 하얀 꽃이 보였어.",
+      recordKind: "demo", observedAt: "2026-05-02" }],
+  }) }));
+  const response = await post();
+  const body = await response.json();
+  assert.equal(response.status, 200);
+  assert.match(body.answer, /2026-05-02 과수원 사진에서 하얀 꽃이 보였데이.*내 꽃인지 확인된 기록은 없/u);
+  assert.equal(body.source, "시연용 성장일기 · 18주차 · 꽃 소식");
+  globalThis.chatResult = { answer: "꽃은 안 폈데이.", source: null, sourceId: null };
+  assert.deepEqual(await (await post()).json(), body, "a missed model citation still uses the visible orchard diary");
 });
 
 test("last-week chat sends only complete measured days and identifies missing rainfall", async () => {
@@ -303,13 +334,20 @@ test("last-week chat sends only complete measured days and identifies missing ra
   } finally { delete process.env.KMA_ASOS_SERVICE_KEY; }
 });
 
-test("a Gemini weather number outside ASOS observations is replaced with measured facts", () => {
+test("an AI weather number outside ASOS observations is replaced with measured facts", () => {
   const context = { kind: "recent", range: ["2026-11-08"], observations: [{
     date: "2026-11-08", weather: { tempMax: 20, tempMin: 7, rainMm: 1.5 },
   }], unavailable: [] };
   assert.match(safeWeatherAnswer("최고 99°C였다 카더라.", context), /최고 20°C, 최저 7°C, 강수량 1\.5mm/u);
   assert.equal(safeWeatherAnswer("최고 20°C, 최저 7°C, 강수량 1.5mm였데이.", context),
     "최고 20°C, 최저 7°C, 강수량 1.5mm였데이.");
+  assert.notEqual(safeWeatherAnswer('', { ...context, kind: 'recent' }),
+    safeWeatherAnswer('', { ...context, kind: 'yesterday' }));
+  const weekly = { ...context, kind: 'last_week', range: ['2026-11-02', '2026-11-08'], observations: [
+    { date: '2026-11-02', weather: { tempMax: 18, tempMin: 5, rainMm: 0 } }, ...context.observations,
+  ] };
+  assert.match(safeWeatherAnswer('최고 20°C에 비 1.5mm였데이. 우째 지내쪄?', weekly),
+    /확인된 날들의 최고기온은 18~20°C.*강수량은 0~1\.5mm/u);
   const missing = { kind: "yesterday", range: ["2026-11-08"], observations: [],
     unavailable: [{ date: "2026-11-08", reason: "no_data", message: "이 날짜의 관측자료가 없어요." }] };
   const answer = safeWeatherAnswer("최고 99°C였데이.", missing);
@@ -317,7 +355,28 @@ test("a Gemini weather number outside ASOS observations is replaced with measure
   assert.match(answer, /관측자료가 없/u);
 });
 
-test("the route reports server and Gemini timing only in development, without any content", async () => {
+test("an AI outage keeps measured ASOS weather available but reports diary chat failure", async () => {
+  process.env.KMA_ASOS_SERVICE_KEY = "TEST-KEY";
+  globalThis.fetch = async () => Response.json({ response: { header: { resultCode: "00" }, body: { items: { item: {
+    tm: "2026-09-26", stnId: "276", stnNm: "청송군", maxTa: "24.5", minTa: "16", sumRn: "0.1",
+  } } } } });
+  globalThis.chatFailure = new (await import("@/lib/openai-chat.js")).ChatServiceError("AI 결제 잔액 부족", 402);
+  const post = async (question) => POST(new Request("http://localhost/api/chat", { method: "POST", body: JSON.stringify({
+    treeId: "tree-1", question, recentDiaries: [{ id: "tree-1-w18", text: "하얀 꽃이 보였어." }],
+  }) }));
+  try {
+    const weather = await post("2026-09-26 날씨 어땠어?");
+    const weatherBody = await weather.json();
+    assert.equal(weather.status, 200);
+    assert.match(weatherBody.answer, /24\.5°C.*16°C.*0\.1mm/u);
+    assert.match(weatherBody.source, /기상청 ASOS.*AI 응답 불가/u);
+    const flower = await post("홍이는 꽃이 폈어?");
+    assert.equal(flower.status, 402);
+    assert.deepEqual(await flower.json(), { error: "AI 결제 잔액 부족" });
+  } finally { delete process.env.KMA_ASOS_SERVICE_KEY; }
+});
+
+test("the route reports server and AI timing only in development, without any content", async () => {
   const post = () => POST(new Request("http://localhost/api/chat", { method: "POST", body: JSON.stringify({ treeId: "tree-1", question: "비밀 질문" }) }));
   const realEnv = process.env.NODE_ENV;
   const realDebug = console.debug;
@@ -326,7 +385,7 @@ test("the route reports server and Gemini timing only in development, without an
   try {
     process.env.NODE_ENV = "development";
     const header = (await post()).headers.get("server-timing");
-    assert.match(header, /^total;dur=[\d.]+, gemini;dur=[\d.]+$/);
+    assert.match(header, /^total;dur=[\d.]+, ai;dur=[\d.]+$/);
     assert.ok(logs.length > 0);
     assert.ok(!logs.join().includes("비밀 질문"));
     process.env.NODE_ENV = "production";
