@@ -5,7 +5,7 @@
 
 - **배포 사이트:** https://my-apple-year.vercel.app/
 - **GitHub:** https://github.com/eunjii0722/2026-2-LikeLion-Dandithon
-- **개발 환경:** Next.js 16 (App Router), React 19, JavaScript, Gemini API, 기상청 ASOS API, Vercel
+- **개발 환경:** Next.js 16 (App Router), React 19, JavaScript, Gemini API, OpenAI API, 기상청 ASOS API, Vercel
 
 > **프로젝트 성격:** 해커톤용 프로토타입입니다. 분양 결제와 배송은 실제로 처리되지 않으며, 준비된 성장 기록·편지는 시연용 예시입니다. 실제 농가와 연동된 상용 서비스가 아닙니다.
 
@@ -127,7 +127,7 @@ await initializeDemo();
 | `/timeline` | 계절별 생육 타임라인 |
 | `/diary/39` | 해당 주차 일기 또는 미생성 안내 |
 | `/letter` | 홍이에게 편지 보내기 및 편지 이력 |
-| `/chat` | 성장일기 근거 기반 Gemini 대화 |
+| `/chat` | 성장일기와 기상청 관측자료를 근거로 한 OpenAI 대화 |
 | `/words` | 저장한 사투리 단어장 |
 | `/harvest` | 수확 앨범 및 수확 예정 정보 |
 | `/farmer` | 사진 분석·일기 생성용 농부 화면 |
@@ -138,7 +138,7 @@ await initializeDemo();
 | --- | --- | --- |
 | `/api/vision` | `POST` | 업로드한 사진을 Gemini로 분석 |
 | `/api/diary` | `POST` | 분석 근거·관찰 날짜·날씨·편지를 바탕으로 성장일기 생성 |
-| `/api/chat` | `POST` | 최근 성장일기를 바탕으로 홍이의 답변 생성 |
+| `/api/chat` | `POST` | 최근 성장일기 또는 청송 ASOS 관측자료를 바탕으로 홍이의 답변 생성 |
 | `/api/weather?date=YYYY-MM-DD&treeId=tree-1` | `GET` | 해당 날짜의 기상청 ASOS 일자료 조회 |
 
 > API 주소를 브라우저 주소창에 여는 것만으로 `POST` 기능을 테스트할 수는 없습니다. 화면에서 버튼을 누른 뒤 `F12 → Network → Fetch/XHR`에서 각 요청의 상태 코드와 응답 내용을 확인하세요. `200 OK`는 해당 요청이 성공했다는 뜻이지 모든 사진에서 정확한 판단을 보장하는 것은 아닙니다.
@@ -186,9 +186,11 @@ Copy-Item .env.example .env.local
 ```dotenv
 GEMINI_API_KEY=여기에_Gemini_API_키
 KMA_ASOS_SERVICE_KEY=여기에_기상청_ASOS_인증키
+OPENAI_API_KEY=여기에_OpenAI_API_키
 ```
 
-- **Gemini:** 사진 분석, AI 성장일기, AI 채팅에 필요합니다.
+- **Gemini:** 사진 분석과 AI 성장일기에 필요합니다.
+- **OpenAI:** 홍이 AI 대화에 필요합니다. 키는 서버에서만 사용합니다. 저비용 `gpt-5-nano`를 사용하며, 모델 종료 공지에 맞춰 교체해야 합니다.
 - **기상청:** [공공데이터포털 지상(종관, ASOS) 일자료 조회서비스](https://www.data.go.kr/data/15059093/openapi.do) 인증키를 사용합니다.
 - 키가 없으면 해당 외부 API 기능이 제한될 수 있지만 기본 프론트엔드 화면은 확인할 수 있습니다.
 - `.env.local`은 **절대 GitHub에 올리지 마세요.** API 키를 소스 코드에 직접 쓰거나 `NEXT_PUBLIC_` 환경변수에 넣지 않습니다.
@@ -210,7 +212,7 @@ npm run build
 npm start
 ```
 
-**배포 환경(Vercel)**에서도 별도로 `GEMINI_API_KEY`, `KMA_ASOS_SERVICE_KEY`를 Environment Variables에 등록해야 합니다. 로컬 `.env.local`이 배포 서버에 자동 복사되지는 않습니다. 키를 변경하면 새 배포에 반영됐는지 확인하세요.
+**배포 환경(Vercel)**에서도 별도로 `GEMINI_API_KEY`, `KMA_ASOS_SERVICE_KEY`, `OPENAI_API_KEY`를 Environment Variables에 등록해야 합니다. 로컬 `.env.local`이 배포 서버에 자동 복사되지는 않습니다. 키를 변경하면 새 배포에 반영됐는지 확인하세요.
 
 ---
 
@@ -233,7 +235,8 @@ node --test
 | 둘러보기 실행이 거부됨 | 기존 `localStorage` 기록이 있는지 확인하고 **빈 브라우저 프로필**에서 재시도 |
 | 새로 분양했는데 과거 일기가 없음 | **정상 동작**: 신규 분양은 성장 기록 0편부터 시작 |
 | 39주차 일기가 없음 | **정상 초기 상태**: 농부 화면에서 새 일기를 생성해야 함 |
-| Chat 응답이 늦음 | Gemini 응답 지연 가능. `F12 → Network`에서 `/api/chat`의 상태·시간 확인 |
+| Chat 응답이 늦음 | OpenAI 응답 지연 가능. `F12 → Network`에서 `/api/chat`의 상태·시간 확인 |
+| Chat에서 AI 결제 잔액 오류 | Vercel 또는 로컬의 `OPENAI_API_KEY`가 속한 프로젝트의 사용 한도·결제 상태 확인 |
 | Vision·Diary가 실패함 | Vercel 또는 로컬의 `GEMINI_API_KEY`, 요청 오류 메시지, 서버 로그 확인 |
 | 날씨에 '관측자료 없음' 표시 | 인증키 누락·날짜 미제공·관측값 누락 가능. `/api/weather` 응답의 `reason` 확인 |
 | 39주차 사진이 없다고 표시됨 | 해당 주차 일기 생성 전이면 정상. 35주차 사진은 아래 최근 일기에서 확인 |
@@ -283,7 +286,7 @@ git push -u origin FE/feature/기능명
 
 ## 7. 구현 범위와 한계
 
-- **실제 Gemini API 연동:** Vision·Diary·Chat 구현. 배포 환경에서 각 API의 `200 OK` 응답과 화면 동작을 확인한 사례가 있습니다. 다만 모델 응답·속도·품질은 호출 상황에 따라 달라질 수 있습니다.
+- **실제 AI API 연동:** Vision·Diary는 Gemini, Chat은 OpenAI를 호출합니다. Chat 전환은 로컬에서 실제 API로 검증했으며 프로덕션 배포 반영 여부는 별도로 확인해야 합니다. 모델 응답·속도·품질은 호출 상황에 따라 달라질 수 있습니다.
 - **기상청 관측자료:** 청송군 ASOS 관측지점 데이터를 사용합니다. 데이터가 없으면 없는 것으로 표시합니다.
 - **데이터 저장:** 개인별 기록은 현재 브라우저의 `localStorage`에 저장됩니다. 계정·DB·다른 기기와의 동기화 기능은 없습니다.
 - **시연용 데이터:** 과거 사진과 편지·분양 시점은 예시입니다. 일부 일기는 실제 API 응답에 게시용 문구와 표시 단계 보정이 적용되었습니다. 원본 분석 기록은 별도로 보존합니다.
@@ -299,7 +302,7 @@ git push -u origin FE/feature/기능명
 | --- | --- |
 | `app/` | Next.js 페이지와 API Route |
 | `components/` | 홈·일기·타임라인·편지·채팅·농부 화면 UI |
-| `lib/` | 데이터 조회, 저장소, Gemini·날씨 처리, 프롬프트 |
+| `lib/` | 데이터 조회, 저장소, Gemini·OpenAI·날씨 처리, 프롬프트 |
 | `data/demo/README.md` | 시연 데이터의 생성·출처·검증에 대한 상세 설명 |
 | `data/demo/records.json` | 시연 자료 생성 시 기록된 원본 API 응답 |
 | `data/demo/editorial.json` | 게시용 일기 표현 및 생육 단계 표시 보정 |
